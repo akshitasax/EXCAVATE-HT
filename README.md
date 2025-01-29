@@ -14,10 +14,12 @@ Download:
 
     - Download ap_environment.yml
     - Run the following on Terminal:
-cd <path/to/ap_environment.yml>
-conda env create -f ap_environment.yml
+> cd <path/to/ap_environment.yml> <br>
+> conda env create -f ap_environment.yml
+
 - Verify environment was installed successfully by running:
-conda env list
+> conda env list
+
 2. **ap.py**
 3. **gen_dual_guide_lib.py**
 
