@@ -28,8 +28,8 @@ Download:
 4. **Files needed to create your guide libraries**
   - Variant data (vcf.gz and vcf.gz.tbi files) for chromosome or locus of interest from a population database of your choice
   - Variant data (vcf file) for your cell-line of interest
-  - Fasta file for the reference sequence of the chromosome your gene of interest falls in
-  - Whole genome fasta files for off-target analysis
+  - Fasta file for the reference sequence of the chromosome your gene of interest falls in (https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/ - refseq file, go to top right corner, click send to, complete record, file, select fasta, create file)
+  - Whole genome fasta files for off-target analysis (same link as above)
 
 ## Usage
 
