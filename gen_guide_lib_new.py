@@ -41,9 +41,9 @@ def add_common_args(parser):
         '--pairing-method',
         nargs='?',
         const='r',
-        choices=['r', 'fp'],
+        choices=['r', 'fp', 't'],
         type=str,
-        help="Enable pairing of gRNA to output a dual-guide library. Default is random pairing (pairing all guides that target different SNPs together). Use 'fp' for pairing guides about a fixed point."
+        help="Enable pairing of gRNA to output a dual-guide library. Default is 'r': pairing all guides that target different SNPs together. 'fp': pairing guides about a fixed point. 't': tiled pairing"
     )
     
     parser.add_argument(
@@ -285,6 +285,8 @@ def apply_pairing(all_guides, method, fixed_points=None):
         return ap.random_pair(all_guides)
     elif method == 'fp':
         return ap.fixed_point_pair(all_guides, fixed_points)
+    elif method == 't':
+        return ap.tiled_pair(all_guides)
     else:
         raise ValueError(f"Unsupported pairing method: {method}")
 
