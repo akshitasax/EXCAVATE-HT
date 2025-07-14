@@ -498,7 +498,7 @@ def find_guides(snplist, sequence, cas_obj, max_snp_pos_in_protospacer, guide_le
                 else:
                     SNPallele.append(presentallele + ' (alt)') #go to the specific snp position in the given sequence and print that
     
-                guidename.append('chr' + chrom_num + '_' + str(guide_start) + '_' + guide_strand + '_' + + presentallele + '_' + cas_obj.name + '_' + str(guide_len) + 'nt')
+                guidename.append('chr' + chrom_num + '_' + str(guide_start) + '_' + guide_strand + '_' + presentallele + '_' + cas_obj.name + '_' + str(guide_len) + 'nt')
                     
             else:
                 pass
