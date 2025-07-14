@@ -36,7 +36,23 @@ excavate_banner = r"""
                                                      
     """
 def add_common_args(parser):
+
+    parser.add_argument(
+        '--pairing-method',
+        nargs='?',
+        const='r',
+        choices=['r', 'fp'],
+        type=str,
+        help="Enable pairing of gRNA to output a dual-guide library. Default is random pairing (pairing all guides that target different SNPs together). Use 'fp' for pairing guides about a fixed point."
+    )
     
+    parser.add_argument(
+        "-f",
+        "--fixed-points-list",
+        type=str,
+        help="1 or more fixed points, comma-separated (genomic coordinate without chr#, eg: 11989251,12002042,...]) in your locus to pair guides around."
+    )
+        
     """Add arguments common to multiple subcommands"""
     parser.add_argument(
        "-o", "--output_dir",
@@ -44,6 +60,7 @@ def add_common_args(parser):
         type=str,
         help="Output directory. Folder name if you are already in the excavate folder.",
     )
+        
 
         
 def add_generate_parser(subparsers):
@@ -117,22 +134,6 @@ def add_generate_parser(subparsers):
         action='store_true',
         help="Include for off-targets analysis (counting exact matches in genome, and 1 bp mismatches in chromosome of interest).",
     )
-
-    gen_parser.add_argument(
-        '--pairing-method',
-        nargs='?',
-        const='r',
-        choices=['r', 'fp'],
-        type=str,
-        help="Enable pairing of gRNA to output a dual-guide library. Default is random pairing (pairing all guides that target different SNPs together). Use 'fp' for pairing guides about a fixed point."
-    )
-    
-    gen_parser.add_argument(
-        "-f",
-        "--fixed-points-list",
-        type=str,
-        help="1 or more fixed points, comma-separated (genomic coordinate without chr#, eg: 11989251,12002042,...]) in your locus to pair guides around."
-    )
                         
     gen_parser.add_argument(
         "--split-phased",
@@ -167,12 +168,6 @@ def add_pair_parser(subparsers):
         required=True,
         type=str,
         help="Path to input single-gRNA library file"
-    )
-    pair_parser.add_argument(
-        "--pairing-method",
-        choices=["r", "fp"],
-        default="random",
-        help="Pairing method r=random, fp=fixed-point, t=tiled (default: r or random)"
     )
 
     add_common_args(pair_parser)
@@ -537,6 +532,7 @@ def run_pairing(args):
     if all_guides_paired.empty:
         raise ValueError("No pairs made. Check if fixed-points fall within library's genomic region")
 
+    os.makedirs(outdir, exist_ok=True)
     all_guides_paired_output = os.path.join(outdir, "all_guides_paired.csv")
     
     all_guides_paired.to_csv(all_guides_paired_output, index=False)
