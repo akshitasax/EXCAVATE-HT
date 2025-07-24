@@ -8,7 +8,7 @@ A python-based tool to mine population and personalised variant data to generate
 
 **For MacOS/Unix:**
 
-- Download miniconda  
+***Install miniconda*** 
 1. Go to miniconda installation website (https://www.anaconda.com/download)  
 2. Press skip registration  
 3. Go to miniconda installers \- download for your device  
@@ -22,13 +22,13 @@ Some of the packages needed to run excavate (bcftools and bedtools) cannot be ea
 
 1. Open PowerShell as Administrator (right click on PowerShell \> Run as Administrator)  
 2. Run:
-
+   
    `wsl –install`
 
-3. Once it's installed, restart your computer if prompted  
-4. Open the Ubuntu app from Start Menu (Ubuntu is a Linux distribution downloaded when WSL was installed).
-
-- Install Miniconda:  
+4. Once it's installed, restart your computer if prompted  
+5. Open the Ubuntu app from Start Menu (Ubuntu is a Linux distribution downloaded when WSL was installed).
+   
+***Install Miniconda:***  
 1. In Ubuntu, run the following:
 
    
@@ -49,21 +49,25 @@ Some of the packages needed to run excavate (bcftools and bedtools) cannot be ea
 
 4. Continue with downloading the genome fasta and other files needed to run excavate.
 
-- Download the hg38 whole genome fasta file (I have put it in this in Conklin Lab \> Common Data \> excavate): [https://www.dropbox.com/scl/fi/in629vt8qeh5deciyr131/GCF\_000001405.40\_GRCh38.p14\_genomic.fa?rlkey=v1ko553j670zw44v5ppljwde2\&st=0uzq66xx\&dl=0](https://www.dropbox.com/scl/fi/in629vt8qeh5deciyr131/GCF_000001405.40_GRCh38.p14_genomic.fa?rlkey=v1ko553j670zw44v5ppljwde2&st=0uzq66xx&dl=0)
+**For all users:**
+
+- Download the FASTA file for your whole genome of interest. Find hg38 here: https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/
 
 - Download your chromosome of interest:  
-1. Go to [https://www.ncbi.nlm.nih.gov/datasets/genome/GCF\_000001405.26/](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/)  
-2. Go to chromosome of interest and click either the RefSeq or GenBank blue link  
-3. Click on FASTA under the title of the page  
-4. Click on Send to: at the top right corner of the page \> Complete record \> File \> make sure format is FASTA \> Create file.  
-5. This will download a sequence.fasta. I suggest changing its name to identify the chromosome downloaded, for example, change to ‘chr1sequence.fasta’
+	1. Go to [https://www.ncbi.nlm.nih.gov/datasets/genome/GCF\_000001405.26/](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/)  
+	2. Go to chromosome of interest and click either the RefSeq or GenBank blue link  
+	3. Click on FASTA under the title of the page  
+	4. Click on Send to: at the top right corner of the page \> Complete record \> File \> make sure format is FASTA \> Create file.  
+	5. This will download a sequence.fasta. I suggest changing its name to identify the chromosome downloaded, for example, change to ‘chr1sequence.fasta’
 
-- Download the VCF files (.vcf.gz and .vcf.gz.tbi files) you will need for your cell-line of interest: eg: for WTD hNIL, have cN8\_hNIL.vcf.gz and cN8\_hNIL.vcf.gz.tbi downloaded on your computer.
+- Download the VCF files (.vcf.gz and .vcf.gz.tbi files) you will need for your cell-line of interest.
+
+- Download the VCF files (.vcf.gz and .vcf.gz.tbi files) you will need for your population of interest. (For example, find files with data from the 1000 genomes here: https://www.internationalgenome.org/data-portal/data-collection)
 
 - Download all scripts required to run excavate.  
     
-- Make a folder in Downloads called ‘excavate’  
-  * Put all code files and genome, vcf, and chromosome fasta files for your run in that folder
+- Make a folder in Downloads called ‘excavate’
+	1. Put all code files and genome, vcf, and chromosome fasta files for your run in that folder
 
 - Before you run EXCAVATE, your excavate folder should have:  
 1. **environment.yml file**  
