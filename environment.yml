@@ -1,0 +1,15 @@
+name: excavate
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python>=3.9,<3.13
+  - numpy
+  - pandas
+  - biopython
+  - bedtools
+  - bcftools
+  - regex
+  - pyfaidx
+  - pip
