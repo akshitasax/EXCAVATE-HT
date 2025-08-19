@@ -72,7 +72,7 @@ Some of the packages needed to run excavate (bcftools and bedtools) cannot be ea
 - Before you run EXCAVATE, your excavate folder should have:  
 1. **environment.yml file**  
 2. **ap.py**  
-3. **gen\_guide\_lib.py**  
+3. **main.py**  
 4. **Whole genome fasta file**  
 5. **Chromosome fasta file**  
 6. **VCF files (cell-line or population or multiple). Have both the .gz and the .gz.tbi files in your folder.**
@@ -105,19 +105,25 @@ Some of the packages needed to run excavate (bcftools and bedtools) cannot be ea
 
 **RUNNING EXCAVATE**
 
-The file ap.py contains all the functions required for excavate to run. The file gen\_guide\_lib.py facilitates taking user input and running all functions in the correct order. 
+The file ap.py contains all the functions required for excavate to run. The file main.py facilitates taking user input and running all functions in the correct order. 
 
-The first time you run EXCAVATE, you must make the gen\_guide\_lib.py script executable. To do this, enter:  
-`chmod +x gen_guide_lib.py` 
+The first time you run EXCAVATE, you must make the main.py script executable. To do this, enter:  
+`chmod +x main.py` 
 
 Now you can run the script.
 
 Enter this for a description of how to use the pipeline:  
-`./gen_guide_lib.py --help`
+`./main.py --help`
+
+Enter this for a description of how to use the 'generate' mode of the pipeline:  
+`./main.py generate --help`
+
+Enter this for a description of how to use the 'pair' mode of the pipeline:  
+`./main.py pair --help`
 
 Here is an example of how you can use the pipeline:
 
-./gen\_guide\_lib.py path/to/cellline\_vcf\_file cell-line path/to/chromosome\_fasta\_file path/to/genome\_fasta\_file chr1:11975541-12019490 \--cas SpCas9 \--pair fp \-f 11976861 \--split-phased \--summary \-o cn8\_kgp\_gRNA\_files
+./main.py generate path/to/cellline\_vcf\_file cell-line path/to/chromosome\_fasta\_file path/to/genome\_fasta\_file chr1:11975541-12019490 \--cas SpCas9 \--pair fp \-f 11976861 \--split-phased \--summary \-o cn8\_kgp\_gRNA\_files
 
 - Script \- make sure to add ./ first\*  
 - Files\*  
