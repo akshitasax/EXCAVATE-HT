@@ -11,7 +11,17 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.8"
-license = { file = "LICENSE" }
+license = { text = "MIT" }
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+]
+
 dependencies = [
     "numpy",
     "pandas",
@@ -19,6 +29,12 @@ dependencies = [
     "pyfaidx",
     "regex"
 ]
+
+[project.urls]
+Homepage = "https://github.com/akshitasax/EXCAVATE-HT"
+Documentation = "https://excavate-ht.readthedocs.io"
+Source = "https://github.com/akshitasax/EXCAVATE-HT"
+Issues = "https://github.com/akshitasax/EXCAVATE-HT/issues"
 
 [project.scripts]
 excavate-ht = "excavate-ht.main:main"
