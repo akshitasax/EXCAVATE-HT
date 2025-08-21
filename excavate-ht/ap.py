@@ -217,9 +217,6 @@ def create_gens(vcf_file, locus, variants_db, af_threshold = 0.1): #for snps, no
         pass
     else:
         locus = locus[3:]
-
-    print(locus)
-    print('Hiiiiiiii')
         
     # handle population and cell-line variant databases differently because population will use allele frequency
     if variants_db.startswith('population'):
