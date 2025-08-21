@@ -36,6 +36,8 @@ Documentation = "https://excavate-ht.readthedocs.io"
 Source = "https://github.com/akshitasax/EXCAVATE-HT"
 Issues = "https://github.com/akshitasax/EXCAVATE-HT/issues"
 
+keywords = ["crispr", "genomics", "bioinformatics", "gRNA", "variant analysis", "high-throughput screening", "gRNA library", "dual-gRNA"]
+
 [project.scripts]
 excavate-ht = "excavate-ht.main:main"
 
