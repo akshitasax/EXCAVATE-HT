@@ -39,7 +39,7 @@ Source = "https://github.com/akshitasax/EXCAVATE-HT"
 Issues = "https://github.com/akshitasax/EXCAVATE-HT/issues"
 
 [project.scripts]
-excavate-ht = "excavate-ht.main:main"
+excavate-ht = "excavate.main:main"
 
 [tool.setuptools.packages.find]
-where = ["excavate-ht"]
+where = ["excavate"]
