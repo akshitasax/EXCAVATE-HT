@@ -6,11 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "excavate-ht"
 version = "0.1.0"
 description = "A python package for allele-specific CRISPR gRNA library generation."
+keywords = ["crispr", "genomics", "bioinformatics", "gRNA", "variant analysis", "high-throughput screening", "gRNA library", "dual-gRNA"]
+
 authors = [
     { name="Akshita Saxena", email="akshita.saxena0914@gmail.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9,<3.13"
 license = { text = "MIT" }
 
 classifiers = [
@@ -35,8 +37,6 @@ Homepage = "https://github.com/akshitasax/EXCAVATE-HT"
 Documentation = "https://excavate-ht.readthedocs.io"
 Source = "https://github.com/akshitasax/EXCAVATE-HT"
 Issues = "https://github.com/akshitasax/EXCAVATE-HT/issues"
-
-keywords = ["crispr", "genomics", "bioinformatics", "gRNA", "variant analysis", "high-throughput screening", "gRNA library", "dual-gRNA"]
 
 [project.scripts]
 excavate-ht = "excavate-ht.main:main"
