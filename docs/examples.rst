@@ -24,6 +24,7 @@ paired via "random" method (all gRNA targeting different SNPs paired together) i
 
 Example run: Generating a single-gRNA library, editing it, then pairing to create a dual-gRNA library 
 =====================================================================================================
+
 Generaing single-gRNAs targeting heteroyzgous SNVs in an individual cell-line and common SNPs present
 in the 1000 genomes project, in the MFN2 locus, for a custom 5prime PAM sequence.
 
