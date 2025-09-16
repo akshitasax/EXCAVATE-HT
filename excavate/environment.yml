@@ -1,4 +1,4 @@
-name: excavate
+name: excavate-ht
 channels:
   - conda-forge
   - bioconda
