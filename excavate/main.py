@@ -4,7 +4,7 @@
 This script runs EXCAVATE, a pipeline that generates guide RNA libraries for a given locus, with optional pairing, and off-target detection.
 """
 
-import ap
+from . import ap
 import pandas as pd
 from Bio import SeqIO
 from Bio.Seq import Seq
