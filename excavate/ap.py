@@ -485,7 +485,7 @@ def find_guides(snplist, sequence, cas_obj, max_snp_pos_in_protospacer, guide_le
                 if cas_obj.is_five_prime: #save guides as minus guides if cas PAM is five-prime, because that's how the output makes sense
                     guide_strand = '+'
                 else:
-                    guied_strand = '-'
+                    guide_strand = '-'
                     
                 strand.append(guide_strand)
                     
