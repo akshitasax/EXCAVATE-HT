@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+excavate/.DS_Store
+
+# Python cache
+excavate/__pycache__/
+*.pyc
+
+# egg-info
+*.egg-info/
