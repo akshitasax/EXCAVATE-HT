@@ -398,9 +398,13 @@ def run_generate(args):
     # make sure outdir exists (although we already did this above, can maybe remove)
     os.makedirs(outdir, exist_ok=True)
 
-    # save all_guides df in output directory as a csv file
+    # save all_guides df in output directory as a csv file, and bed file for viewing in a genome browser
     all_guides_final_output = os.path.join(outdir, "all_guides.csv")
     all_guides_final.to_csv(all_guides_final_output, index=False)
+
+    all_guides_final_bed = ap.output_bed_format(all_guides_final)
+    all_guides_final_bed_output = os.path.join(outdir, "all_guides_viewing.bed")
+    all_guides_final_bed.to_csv(all_guides_final_bed_output, index=False)
 
     print(f'Combined and annotated single-gRNA library saved in {outdir}')
 
@@ -436,11 +440,21 @@ def run_generate(args):
             all_guides_allele1 = split_list[0]
             all_guides_allele2 = split_list[1]
             
+            #save allele 1 csv and bed files
             all_guides_allele1_output = os.path.join(outdir, "all_guides_allele1.csv")
-            all_guides_allele2_output = os.path.join(outdir, "all_guides_allele2.csv")
-
             all_guides_allele1.to_csv(all_guides_allele1_output, index=False)
+            
+            all_guides_allele1_bed = ap.output_bed_format(all_guides_allele1)
+            all_guides_allele1_bed_output = os.path.join(outdir, "all_guides_allele1_viewing.bed")
+            all_guides_allele1_bed.to_csv(all_guides_allele1_bed_output, index=False)
+
+            #save allele 2 csv and bed files
+            all_guides_allele2_output = os.path.join(outdir, "all_guides_allele2.csv")
             all_guides_allele2.to_csv(all_guides_allele2_output, index=False)
+
+            all_guides_allele2_bed = ap.output_bed_format(all_guides_allele2)
+            all_guides_allele2_bed_output = os.path.join(outdir, "all_guides_allele2_viewing.bed")
+            all_guides_allele2_bed.to_csv(all_guides_allele2_bed_output, index=False)
 
             print(f'Single-gRNA library split by phasing, saved in {outdir}')
             

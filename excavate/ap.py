@@ -878,3 +878,17 @@ def tiling_pair(guidesdf):
         'SNP position 2', 'alternate allele frequency 2', 'guide 2 ID', 'guide 2',
         'pair ID'
     ])
+
+# OUTPUT SGRNA LIBRARY IN BED FORMAT FOR UCSC GENOME BROWSER VIEWING
+def output_bed_format(guidesdf):
+    
+    guides_bed = guidesdf.copy()
+    
+    guides_bed['score'] = 500
+    guides_bed['start'] = guides_bed['start'] - 1
+    guides_bed = guides_bed[['chrom', 'start', 'end', 'guide ID', 'score', 'strand']]
+    guides_bed = guides_bed.rename(columns={'guide ID': 'name'})
+    guides_bed.replace(to_replace='minus', value='-', inplace=True)
+    guides_bed.replace(to_replace='plus', value='+', inplace=True)
+    
+    return guides_bed
