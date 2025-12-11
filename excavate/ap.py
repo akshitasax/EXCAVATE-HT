@@ -71,6 +71,10 @@ SaCas9 = Cas(
 
 """
 function to output a regex pattern from IUPAC PAM code.
+Arguments:
+    custom_pam_list: list of PAM sequences in IUPAC code
+Returns:
+    custom_pam_list_regex: list of PAM sequences in regex format
 """
 def create_regex_pam(custom_pam_list):
     
@@ -101,6 +105,11 @@ def create_regex_pam(custom_pam_list):
 
 """
 function to create the exclusion position set for a given custom PAM list, and orientation
+Arguments:
+    custom_pam_list: list of PAM sequences in IUPAC code
+    orient: PAM orientation, '5prime' or '3prime'
+Returns:
+    exclusion_pos: list of exclusion positions for each PAM
 """
 def create_exclusion_pos_set(custom_pam_list, orient):
     
@@ -135,6 +144,11 @@ def create_exclusion_pos_set(custom_pam_list, orient):
 
 """
 function to create a custom cas_obj
+Arguments:
+    custom_pam: list of PAM sequences in IUPAC code
+    orient: PAM orientation, '5prime' or '3prime'
+Returns:
+    custom_cas: custom Cas object
 """
 def create_custom_cas_obj(custom_pam, orient):
     #custom_pam can have multiple values (multi-PAM)
@@ -186,6 +200,10 @@ def create_custom_cas_obj(custom_pam, orient):
 
 """
 Import fasta file for required chromosome
+Arguments:
+    fa_filename: string filename
+Returns:
+    chseq: sequence of the chromosome
 """
 def makeseq(fa_filename):
     file_path = fa_filename
@@ -201,10 +219,12 @@ def makeseq(fa_filename):
 """
 Returns a table of genotypes at each SNP location, with SNPs filtered by genomic region, heterozygosity in a cell line, or allele frequency in a population database
 Arguments:
-    vcf_filename: string filename
-    genomic_region: chr#:startpos-endpos
+    vcf_file: string filename
+    locus: genomic region in format chr#:startpos-endpos
     variants_db: 'population' or 'cell-line' to handle filtering of SNPs differently
-    af_threshold: default 0.3, select SNPs with minor allele frequency above this threshold 
+    af_threshold: default 0.1, select SNPs with minor allele frequency above this threshold 
+Returns:
+    gens_df: dataframe of genotypes at each SNP location
 """
 def create_gens(vcf_file, locus, variants_db, af_threshold = 0.1): #for snps, not indels rn
 
@@ -217,25 +237,40 @@ def create_gens(vcf_file, locus, variants_db, af_threshold = 0.1): #for snps, no
         pass
     else:
         locus = locus[3:]
-        
+
     # handle population and cell-line variant databases differently because population will use allele frequency
     if variants_db.startswith('population'):
-        bcl_view = subprocess.Popen(f'bcftools view -v snps -g ^miss -q {af_threshold}:minor -r {locus} {vcf_file} -Ou | bcftools query -f"%CHROM\t%POS\t%ID\t%REF\t%ALT\t%INFO/AF\n"', shell=True, stdout=subprocess.PIPE)
-        bcl_view.wait()
+        cmd = (
+            f'bcftools view -v snps -g ^miss -q {af_threshold}:minor -r {locus} {vcf_file} -Ou | bcftools query -f"%CHROM\t%POS\t%ID\t%REF\t%ALT\t%INFO/AF\n"'
+        )
         col_names_sim = ["chrom", "pos", "snp_id", "ref", "alt", "alt AF"]
-
-    elif variants_db.startswith('cell-line'):
-        bcl_view = subprocess.Popen(f'bcftools view -v snps -g ^miss -g het -r {locus} {vcf_file} -Ou | bcftools query -f"%CHROM\t%POS\t%ID\t%REF\t%ALT[\t%GT]\n"', shell=True, stdout=subprocess.PIPE)
-        bcl_view.wait()
-        col_names_sim = ["chrom", "pos", "snp_id", "ref", "alt", 'genotype']
-
-    else:
-        raise ValueError("var_types must be either 'cell-line' or 'population' optionally followed by numbers if inputting mutiple of each type")
     
-    gens = pd.read_csv(
-            StringIO(bcl_view.communicate()[0].decode("utf-8")),
-            sep="\t",
-            header=None)
+    elif variants_db.startswith('cell-line'):
+        cmd = (
+            f'bcftools view -v snps -g ^miss -g het -r {locus} {vcf_file} -Ou | bcftools query -f"%CHROM\t%POS\t%ID\t%REF\t%ALT[\t%GT]\n"'
+        )
+        col_names_sim = ["chrom", "pos", "snp_id", "ref", "alt", "genotype"]
+    
+    else:
+        raise ValueError(
+            "var_types must be either 'cell-line' or 'population' optionally followed by numbers if inputting multiple of each type"
+        )
+
+    result = subprocess.run(
+        cmd,
+        shell=True,
+        capture_output=True,
+        text=True,
+    )
+
+    # Check for bcftools errors
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"bcftools command failed with error:\n{result.stderr}"
+        )
+
+    # Parse into a DataFrame
+    gens = pd.read_csv(StringIO(result.stdout), sep="\t", header=None)
     gens.columns = col_names_sim
 
     #add another column to gens to store the present alleles acccording to the genotype. Hence, for cell-line vcfs, if the file is phased, this is information about which alleles are phased together. If file is not phased, this helps store the alleles present in the cell-line in case any of the snps are multi-allelic, and the ref version isn't present. This prevents gRNA being made with a version of the snp that isn't present in the cell-line.
@@ -272,10 +307,11 @@ def create_gens(vcf_file, locus, variants_db, af_threshold = 0.1): #for snps, no
 """
 Returns an immutable sequence with either ref or alt forms of SNP targets of interest
 Arguments:
-    vcf : string filename
-    refseq : reference sequence to be mutated
-    snpform = 'ref' or 'alt'
-    dbsnp = True or False (default False) to handle case of using dbsnp variant file input
+    gens_df: dataframe of genotypes at each SNP location
+    refseq: reference sequence to be mutated
+    snpform: 'allele1' or 'allele2', arbitrary identity of allele, assigned in create_gens function
+Returns:
+    immutable_seq: Seq() object of an immutable sequence with either ref or alt (allele1 or allele2) forms of SNP targets of interest
 """
 def getaltseq(gens_df, refseq, snpform = 'allele1'):
     mutable_seq = MutableSeq(refseq)
@@ -298,6 +334,14 @@ def getaltseq(gens_df, refseq, snpform = 'allele1'):
 
 """
 Find guides in given sequence around given loci for particular Cas species
+Arguments:
+    snplist: dataframe of SNP locations
+    sequence: sequence to find guides in
+    cas_obj: Cas object
+    max_snp_pos_in_protospacer: maximum SNP position in protospacer
+    guide_len: length of guide
+Returns:
+    guides_df: dataframe of guides found
 """
 def find_guides(snplist, sequence, cas_obj, max_snp_pos_in_protospacer, guide_len):
 
@@ -523,6 +567,11 @@ def find_guides(snplist, sequence, cas_obj, max_snp_pos_in_protospacer, guide_le
 
 """
 Input combined all_guides_df, and annotate in a new column whether each SNP is present in each vcf file input. Save alt AF frequency in a separate new column if SNP is in a population database vcf inputted.
+Arguments:
+    gensdict: dictionary of gens dataframes, keyed by vcf file name
+    guidesdf: dataframe of guides
+Returns:
+    new_guidesdf: dataframe of guides with variant information annotated
 """
 def all_guides_var_info(gensdict, guidesdf):
     
@@ -563,11 +612,25 @@ def all_guides_var_info(gensdict, guidesdf):
 genome = None
 cas_obj = None
 
+"""
+Arguments:
+    genome_path: path to the genome fasta file
+    cas_params: Cas object
+Returns:
+    None
+"""
 def init_worker(genome_path, cas_params):
     global genome, cas_obj
     genome = Fasta(genome_path)
     cas_obj = cas_params
 
+"""
+Arguments:
+    guide: guide sequence
+Returns:
+    total: number of exact matches in the genome
+    total_rc: number of exact matches in the genome on the reverse strand
+"""
 def search_pattern(guide):
     total = 0
     total_rc = 0
@@ -590,6 +653,16 @@ def search_pattern(guide):
 
     return total + total_rc
 
+"""
+Counts exact matches in the genome for each guide in a guidesdf. Uses multi-processing for supposedly faster execution.
+Arguments:
+    df: dataframe of guides
+    genome_fasta_path: path to the genome fasta file
+    cas_parameters: Cas object
+    num_processes: number of processes to use
+Returns:
+    df: dataframe of guides with exact matches in the genome annotated
+"""
 def count_exact_matches(df, genome_fasta_path, cas_parameters, num_processes=None):
     guides = df['gRNA'].tolist()
     num_processes = num_processes or max(1, mp.cpu_count() - 1)
@@ -607,7 +680,12 @@ def count_exact_matches(df, genome_fasta_path, cas_parameters, num_processes=Non
 
 
 """
-Input: guidesdf and chromosome seq object. Counts 1 bp mismatches for each guide and stores in a new column in the dataframe.
+Counts 1 bp mismatches for each guide and stores in a new column in the dataframe.
+Arguments:
+    df: dataframe of guides
+    chseq: sequence of the chromosome
+Returns:
+    df: dataframe of guides with 1 bp mismatches in the genome annotated
 """
 def one_mismatch(df, chseq):
     counts = []
@@ -647,6 +725,10 @@ def one_mismatch(df, chseq):
 
 """
 Returns a list of variants that are targetable by your Cas enzyme (have PAM sites within 10 bp of the SNP), as well as the number of guides found for each SNP
+Arguments:
+    guidesdf: dataframe of guides
+Returns:
+    targetable_snps: dataframe of targetable SNPs
 """
 def targetable_vars(guidesdf):
     targetable_snps = guidesdf.loc[:, ['rsID', 'SNP position', 'alt allele frequency']]
@@ -661,9 +743,15 @@ def targetable_vars(guidesdf):
 
 # PAIRING-RELATED FUNCTIONS
 
-'''
+"""
 Returns a list of two dataframes, split from the guides dataframe, by guides targeting  each allele, to enable pairing guides on the same allele.
-'''
+Arguments:
+    clean_guidesdf: dataframe of guides
+    phased_vcf: string filename of phased VCF file
+    locus: genomic region in format chr#:startpos-endpos
+Returns:
+    [filtered_guidesdf_allele1, filtered_guidesdf_allele2]: list of two dataframes, split from the guides dataframe, by guides targeting each allele
+"""
 def split_phased(clean_guidesdf, phased_vcf, locus):
     phased_gensdf = create_gens(phased_vcf, locus, 'cell-line')
     
@@ -742,6 +830,10 @@ def split_phased(clean_guidesdf, phased_vcf, locus):
 
 """
 Returns paired gRNA library with all possible guide pairs of a list of sgRNA
+Arguments:
+    guidesdf: dataframe of guides
+Returns:
+    pairings_df: dataframe of paired guides
 """
 def random_pair(guidesdf):
     data = []
@@ -774,6 +866,11 @@ def random_pair(guidesdf):
 
 """
 Returns paired gRNA library with guides paired to cause an excision about a fixed point. Takes as input a list of any number of such fixed points. Implemented to allow use cases such as excising certain exons or features of interest.
+Arguments:
+    guidesdf: dataframe of guides
+    points_list: list of fixed points
+Returns:
+    fp_pairings_df: dataframe of paired guides
 """
 def fixed_point_pair(guidesdf, points_list):
     data = []
@@ -816,6 +913,13 @@ def fixed_point_pair(guidesdf, points_list):
 
     return fp_pairings_df
 
+"""
+Returns paired gRNA library with guides paired to target adjacent SNPs
+Arguments:
+    guidesdf: dataframe of guides
+Returns:
+    tiled_pairings_df: dataframe of paired guides
+"""
 def tiling_pair(guidesdf):
     guidesdf = guidesdf.sort_values(by=["SNP position","start"]).reset_index(drop=True)
     data = []
@@ -880,6 +984,13 @@ def tiling_pair(guidesdf):
     ])
 
 # OUTPUT SGRNA LIBRARY IN BED FORMAT FOR UCSC GENOME BROWSER VIEWING
+"""
+Outputs a dataframe of guides in bed format for UCSC genome browser viewing
+Arguments:
+    guidesdf: dataframe of guides
+Returns:
+    guides_bed: dataframe of guides in bed format
+"""
 def output_bed_format(guidesdf):
     
     guides_bed = guidesdf.copy()
