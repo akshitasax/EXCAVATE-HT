@@ -238,10 +238,13 @@ def create_gens(vcf_file, locus, variants_db, af_threshold = 0.1): #for snps, no
     else:
         locus = locus[3:]
 
+    buffer = 0.01
+    t_adj = max(0.0, af_threshold - buffer)
+
     # handle population and cell-line variant databases differently because population will use allele frequency
     if variants_db.startswith('population'):
         cmd = (
-            f'bcftools view -v snps -g ^miss -q {af_threshold}:minor -r {locus} {vcf_file} -Ou | bcftools query -f"%CHROM\t%POS\t%ID\t%REF\t%ALT\t%INFO/AF\n"'
+            f'bcftools view -m2 -M2 -v snps -g ^miss -q {t_adj}:minor -r {locus} {vcf_file} -Ou | bcftools query -f"%CHROM\t%POS\t%ID\t%REF\t%ALT\t%INFO/AF\n"'
         )
         col_names_sim = ["chrom", "pos", "snp_id", "ref", "alt", "alt AF"]
     
