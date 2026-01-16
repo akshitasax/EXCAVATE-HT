@@ -14,7 +14,6 @@ high-throughput screens of these edits.
    installation
    parameters
    examples
-   output
    api_reference
    contributing
 
