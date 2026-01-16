@@ -2,13 +2,10 @@ Installation
 ============
 
 Set Up
---------------
+------
 
-For MacOS/Unix
-~~~~~~~~~~~~~~~~
-
-Install miniconda
-.................
+Installing miniconda on MacOS/Unix
+..................................
 
 1. Go to miniconda installation website (https://www.anaconda.com/download)
 2. Press skip registration
@@ -17,8 +14,8 @@ Install miniconda
 5. Open terminal, make sure it says (base). This means the base conda environment is active and installation was successful.
 6. Continue with downloading the genome fasta and other files needed to run excavate.
 
-For Windows
-~~~~~~~~~~~
+Installing miniconda on Windows
+..................................
 
 Some of the packages needed to run excavate (bcftools and bedtools) cannot be easily installed via conda on Windows (non-Unix systems). Hence, it is recommended to first install and enable WSL (Windows Subsystem for Linux). This will allow you to use a Linux environment to run conda and excavate. To do this:
 
@@ -45,13 +42,10 @@ Some of the packages needed to run excavate (bcftools and bedtools) cannot be ea
 
 4. Continue below:
 
-For all users
-~~~~~~~~~~~~~
-
-5. Create a working directory to save all files needed for your excavate-ht run. For example, you can create a folder called "excavate-ht" in your Downloads.
-
 Create and activate the excavate-ht environment
 ...............................................
+
+Create a working directory to save all files needed for your excavate-ht run. For example, you can create a folder called "excavate-ht" in your Downloads.
 
 Miniconda is a package installer and manager. It allows you to create different "environments" with different software packages that you may need for specific tasks. We will create one for EXCAVATE-HT. To do this:
 
