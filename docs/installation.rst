@@ -1,83 +1,118 @@
 Installation
 ============
 
+Prerequisites
+-------------
+
+Before you begin, ensure you have:
+
+- At least 10 GB of free disk space (for miniconda, EXCAVATE-HT, and genome files)
+- A stable internet connection for downloading large genome files
+- Administrator/sudo access for initial setup
+
 Set Up
 ------
 
 Installing miniconda on MacOS/Unix
 ..................................
 
-1. Go to miniconda installation website (https://www.anaconda.com/download)
-2. Press skip registration
-3. Go to miniconda installers - download for your device
-4. Now you have an installation file, open it. Follow install instructions. I recommend installation on your own user disk and not for all users of the computer.
-5. Open terminal, make sure it says (base). This means the base conda environment is active and installation was successful.
-6. Continue with downloading the genome fasta and other files needed to run excavate.
+1. Go to the miniconda installation website: https://www.anaconda.com/download
+2. Click "Skip registration"
+3. Navigate to miniconda installers and download the installer for your device
+4. Open the downloaded installation file and follow the install instructions. We recommend installing to your own user directory rather than for all users of the computer.
+5. Open a new terminal window and verify the installation was successful by checking that ``(base)`` appears at the beginning of your command prompt. This indicates the base conda environment is active.
 
 Installing miniconda on Windows
-..................................
+................................
 
-Some of the packages needed to run excavate (bcftools and bedtools) cannot be easily installed via conda on Windows (non-Unix systems). Hence, it is recommended to first install and enable WSL (Windows Subsystem for Linux). This will allow you to use a Linux environment to run conda and excavate. To do this:
+Some packages needed to run EXCAVATE-HT (bcftools and bedtools) cannot be easily installed via conda on Windows. Therefore, you must first install WSL (Windows Subsystem for Linux) to use a Linux environment.
 
-1. Open PowerShell as Administrator (right click on PowerShell > Run as Administrator)
+**Step 1: Install WSL**
+
+1. Open PowerShell as Administrator (right-click on PowerShell > Run as Administrator)
 2. Run:
 
    .. code-block:: bash
 
       wsl --install
 
-3. Once it's installed, restart your computer if prompted
-4. Open the Ubuntu app from Start Menu (Ubuntu is a Linux distribution downloaded when WSL was installed).
+3. Restart your computer when prompted
+4. After restart, open the Ubuntu app from the Start Menu (Ubuntu is automatically installed with WSL)
+5. Follow the prompts to create a username and password for your Ubuntu environment
 
-   
+**Step 2: Install miniconda in Ubuntu**
+
+1. In the Ubuntu terminal, download and install miniconda:
 
    .. code-block:: bash
 
       wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
       bash Miniconda3-latest-Linux-x86_64.sh
 
-2. Close and open a new window for Ubuntu. If miniconda was successfully installed, you will see (base) in the beginning of your terminal.
+2. Follow the installation prompts (press Enter to review the license, type "yes" to accept, and accept the default installation location)
+3. Close and reopen the Ubuntu terminal
+4. Verify installation by checking that ``(base)`` appears at the beginning of your command prompt
 
-3. **Important note:** to change directory to a desired location on your Windows filesystem via Ubuntu, the path notations are a little different. For example, to change directory to your Downloads folder (located at C:\\Users\\YourUsername\\Downloads), instead of ``cd Downloads``, you must run ``cd /mnt/c/Users/YourUsername/Downloads``. ``/mnt/...`` allows you to access your Windows filesystem.
+**Important note for Windows users:** To access your Windows filesystem from Ubuntu, use the ``/mnt/`` prefix. For example:
 
-4. Continue below:
+- Windows path: ``C:\Users\YourUsername\Downloads``
+- Ubuntu path: ``/mnt/c/Users/YourUsername/Downloads``
 
-Create and activate the excavate-ht environment
-...............................................
+To find your Windows username, open Command Prompt on Windows and run ``echo %USERNAME%``.
 
-Create a working directory to save all files needed for your excavate-ht run. For example, you can create a folder called "excavate-ht" in your Downloads.
+Create a working directory
+...........................
 
-Miniconda is a package installer and manager. It allows you to create different "environments" with different software packages that you may need for specific tasks. We will create one for EXCAVATE-HT. To do this:
+Create a directory to store all files for your EXCAVATE-HT analysis. For example:
 
-1. Download the environment.yml file into your excavate-ht working directory or folder
-2. Open terminal on Mac or Ubuntu on Windows.
-3. Change directory to the excavate-ht folder in your Downloads by typing and entering this on mac:
+**On Mac/Linux:**
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      cd Downloads/excavate-ht
+   mkdir -p ~/Downloads/excavate-ht
+   cd ~/Downloads/excavate-ht
 
-   Or this on windows:
+**On Windows (in Ubuntu terminal):**
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      cd /mnt/c/Users/YourUsername/Downloads/excavate-ht
+   mkdir -p /mnt/c/Users/YourUsername/Downloads/excavate-ht
+   cd /mnt/c/Users/YourUsername/Downloads/excavate-ht
 
-4. Use the environment.yml file to create a new conda environment with all required packages and dependencies to run EXCAVATE. In terminal, enter:
+Replace ``YourUsername`` with your actual Windows username.
+
+Clone the EXCAVATE-HT repository
+.................................
+
+Clone the repository to get the source code and environment configuration file:
+
+.. code-block:: bash
+
+   git clone https://github.com/akshitasax/EXCAVATE-HT.git
+   cd EXCAVATE-HT
+
+Create and activate the excavate conda environment
+...................................................
+
+The repository includes an ``environment.yml`` file that specifies all required dependencies. Use it to create a dedicated conda environment:
+
+1. Create the environment (this may take several minutes):
 
    .. code-block:: bash
 
       conda env create -f environment.yml
 
-5. Once all packages are downloaded successfully, try activating this environment by entering:
+2. Activate the environment:
 
    .. code-block:: bash
 
       conda activate excavate
 
-6. Now your terminal should say (excavate). The excavate-ht environment is active!
+3. Your terminal prompt should now show ``(excavate)`` instead of ``(base)``, indicating the environment is active.
 
-The environment.yml file installed the following dependencies:
+**The environment includes:**
+
+Python dependencies:
 
 - Python >= 3.9, < 3.13
 - numpy
@@ -86,75 +121,141 @@ The environment.yml file installed the following dependencies:
 - regex
 - pyfaidx
 
-Along with the following external tools
+External tools:
 
 - bedtools
 - bcftools
 
-Install excavate-ht
+Install EXCAVATE-HT
 ...................
 
-You can install EXCAVATE-HT directly from source:
-
-In terminal, within the excavate environment, type:
+With the excavate environment activated, install EXCAVATE-HT in editable mode:
 
 .. code-block:: bash
 
-   git clone https://github.com/akshitasax/EXCAVATE-HT.git
-   cd EXCAVATE-HT
    pip install -e .
 
-EXCAVATE-HT is installed and ready to use. It will appear as a folder in your working directory.
+Verify the installation was successful:
 
-Input data files required for your EXCAVATE-HT run
-..................................................
+.. code-block:: bash
 
-You can create a subfolder in your excavate-ht working directory to store input files:
+   excavate-ht --help
 
-* Download the FASTA file for your whole genome of interest. Find hg38 here: https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/
+If you see the help message, installation was successful!
 
-* Download your chromosome of interest:
+Prepare input data files
+-------------------------
 
-  1. Go to `https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/ <https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/>`_
-  2. Go to chromosome of interest and click either the RefSeq or GenBank blue link
-  3. Click on FASTA under the title of the page
-  4. Click on Send to: at the top right corner of the page > Complete record > File > make sure format is FASTA > Create file.
-  5. This will download a sequence.fasta. I suggest changing its name to identify the chromosome downloaded, for example, change to 'chr1sequence.fasta'
+Set up input directory
+......................
 
-* Download the VCF files (.vcf.gz and .vcf.gz.tbi files) you will need for your cell-line of interest.
+Create a subdirectory in your working folder to store input files:
 
-* Download the VCF files (.vcf.gz and .vcf.gz.tbi files) you will need for your population of interest. (For example, find files with data from the 1000 genomes project here: https://www.internationalgenome.org/data-portal/data-collection)
+.. code-block:: bash
 
-At this point, your working directory file structure may look like this:
+   cd ~/Downloads/excavate-ht  # or your working directory
+   mkdir -p input_data
+   cd input_data
+
+Download required files
+.......................
+
+You will need the following files for your analysis:
+
+**1. Reference genome FASTA file**
+
+Download the human reference genome (hg38): https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/
+
+**2. Chromosome-specific FASTA file**
+
+To download an individual chromosome:
+
+1. Go to https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/
+2. Click on your chromosome of interest
+3. Click either the RefSeq or GenBank blue link
+4. Click "FASTA" under the page title
+5. Click "Send to:" at the top right > Complete record > File > ensure format is FASTA > Create file
+6. Rename the downloaded file to something descriptive (e.g., ``chr1_sequence.fasta``)
+
+**3. Cell line VCF files**
+
+Download both the compressed VCF file and its index:
+
+- ``cell-line.vcf.gz``
+- ``cell-line.vcf.gz.tbi``
+
+**4. Population VCF files**
+
+Download population variant data (e.g., from the 1000 Genomes Project): https://www.internationalgenome.org/data-portal/data-collection
+
+You'll need:
+
+- ``population.vcf.gz``
+- ``population.vcf.gz.tbi``
+
+**Note:** Genome files can be large (several GB). Download times will vary based on your internet connection.
+
+Expected directory structure
+............................
+
+After setup, your directory structure should look like this:
 
 .. code-block:: text
 
    ~/Downloads/excavate-ht/
    ├── EXCAVATE-HT/
-   ├── environment.yml
+   │   ├── environment.yml
+   │   ├── (other repository files)
    ├── input_data/
    │   ├── whole_genome.fa
-   │   ├── chromosome.fa
+   │   ├── chr1_sequence.fasta
    │   ├── cell-line.vcf.gz
    │   ├── cell-line.vcf.gz.tbi
    │   ├── population.vcf.gz
    │   └── population.vcf.gz.tbi
-   └── output_results/ 
+   └── output_results/
 
-Run the following to ensure excavate-ht was installed successfully:
+Using EXCAVATE-HT
+-----------------
 
-.. code-block:: bash
+EXCAVATE-HT can be run in two modes: ``generate`` and ``pair``.
 
-    excavate-ht --help
-    
-EXCAVATE-HT can be run in two modes: 'generate' and 'pair':
-
-Run the following for a description on how to use each mode. Find descriptions of parameters and usage examples in the docs.
+To see detailed help for each mode:
 
 .. code-block:: bash
 
-    excavate-ht generate --help
+   excavate-ht generate --help
 
 .. code-block:: bash
 
-    excavate-ht pair --help
+   excavate-ht pair --help
+
+For parameter descriptions and usage examples, see the full documentation.
+
+Troubleshooting
+---------------
+
+**Issue: (base) doesn't appear after installing miniconda**
+
+- Close and reopen your terminal
+- If still not showing, run: ``conda init`` and restart your terminal
+
+**Issue: conda: command not found**
+
+- The conda installation directory may not be in your PATH. Run the installer again and ensure you answer "yes" when asked to initialize conda.
+
+**Issue: Environment creation fails**
+
+- Ensure you have a stable internet connection
+- Try: ``conda clean --all`` then retry ``conda env create -f environment.yml``
+
+**Issue: Permission denied errors on Windows/WSL**
+
+- Make sure you're working in a directory you have write access to (like ``/mnt/c/Users/YourUsername/``)
+
+**Issue: Cannot find environment.yml**
+
+- Ensure you're in the EXCAVATE-HT directory: ``cd EXCAVATE-HT``
+- Verify the file exists: ``ls environment.yml``
+
+For additional help, please open an issue on the GitHub repository.
