@@ -9,10 +9,10 @@ Run the following in Terminal to print descriptions of parameters (also describe
    excavate-ht generate --help
    excavate-ht pair --help
 
-EXCAVATE-HT Modes and Parameters
---------------------------------
+EXCAVATE-HT Modes
+-----------------
 
-excavate-ht has two modes, generate and pair.
+EXCAVATE-HT has two modes, generate and pair.
 
 excavate-ht generate
 --------------------
@@ -42,17 +42,23 @@ The following arguments should be inputted in the following order:
 **locus**
    Genomic locus in format ``chr#:start-end``.
 
-Remaining arguments can be input in any order:
+Keyword arguments
+~~~~~~~~~~~~~~~~~
+
+The following arguments can be input in any order:
 
 **--af-threshold**
-   Allele frequency threshold between 0 and 1.
+   Allele frequency threshold between 0 and 1. A buffer of 0.01 is subtracted from the AF threshold 
+   to account for rounded values in VCF files.
    *Default:* ``0.1``
 
 **--cas**
+   Required if no pam-list input given
    Specify Cas protein. One of:
    ``SpCas9``, ``SpCas9_NG``, ``enAsCas12a``, or ``SaCas9``.
 
 **--pam-list**
+   Required if no cas input given
    PAM sequences (if not using a supported Cas protein).
    Comma-separated. Use IUPAC codes.
 

@@ -1,50 +1,14 @@
 Installation
 ============
 
-Short version:
-
-You can install EXCAVATE-HT directly from source:
-
-.. code-block:: bash
-
-   git clone https://github.com/akshitasax/EXCAVATE-HT.git
-   cd EXCAVATE-HT
-   pip install -e .
-
-External Tools
---------------
-
-EXCAVATE-HT also requires external bioinformatics tools to be installed:
-
-- bedtools
-- bcftools
-
-We recommend installing them with conda:
-
-.. code-block:: bash
-
-   conda install -c bioconda bedtools bcftools
-
-Requirements
-------------
-
-- Python >= 3.9, < 3.13
-- numpy
-- pandas
-- biopython
-- regex
-- pyfaidx
-
-Long version:
-
 Set Up
-======
+--------------
 
 For MacOS/Unix
---------------
+~~~~~~~~~~~~~~~~
 
 Install miniconda
-~~~~~~~~~~~~~~~~
+.................
 
 1. Go to miniconda installation website (https://www.anaconda.com/download)
 2. Press skip registration
@@ -54,7 +18,7 @@ Install miniconda
 6. Continue with downloading the genome fasta and other files needed to run excavate.
 
 For Windows
-----------
+~~~~~~~~~~~
 
 Some of the packages needed to run excavate (bcftools and bedtools) cannot be easily installed via conda on Windows (non-Unix systems). Hence, it is recommended to first install and enable WSL (Windows Subsystem for Linux). This will allow you to use a Linux environment to run conda and excavate. To do this:
 
@@ -82,14 +46,14 @@ Some of the packages needed to run excavate (bcftools and bedtools) cannot be ea
 4. Continue below:
 
 For all users
-------------
+~~~~~~~~~~~~~
 
 5. Create a working directory to save all files needed for your excavate-ht run. For example, you can create a folder called "excavate-ht" in your Downloads.
 
-Create and activate the excavate environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create and activate the excavate-ht environment
+...............................................
 
-Miniconda is a package installer and manager. It allows you to create different "environments" with different software packages that you may need for specific tasks. We will create one for excavate. To do this:
+Miniconda is a package installer and manager. It allows you to create different "environments" with different software packages that you may need for specific tasks. We will create one for EXCAVATE-HT. To do this:
 
 1. Download the environment.yml file into your excavate-ht working directory or folder
 2. Open terminal on Mac or Ubuntu on Windows.
@@ -117,10 +81,24 @@ Miniconda is a package installer and manager. It allows you to create different 
 
       conda activate excavate
 
-6. Now your terminal should say (excavate). The excavate environment is active!
+6. Now your terminal should say (excavate). The excavate-ht environment is active!
+
+The environment.yml file installed the following dependencies:
+
+- Python >= 3.9, < 3.13
+- numpy
+- pandas
+- biopython
+- regex
+- pyfaidx
+
+Along with the following external tools
+
+- bedtools
+- bcftools
 
 Install excavate-ht
-~~~~~~~~~~~~~~~~~~
+...................
 
 You can install EXCAVATE-HT directly from source:
 
@@ -135,7 +113,7 @@ In terminal, within the excavate environment, type:
 EXCAVATE-HT is installed and ready to use. It will appear as a folder in your working directory.
 
 Input data files required for your EXCAVATE-HT run
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..................................................
 
 You can create a subfolder in your excavate-ht working directory to store input files:
 
