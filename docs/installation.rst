@@ -106,9 +106,9 @@ The repository includes an ``environment.yml`` file that specifies all required 
 
    .. code-block:: bash
 
-      conda activate excavate
+      conda activate excavate-ht
 
-3. Your terminal prompt should now show ``(excavate)`` instead of ``(base)``, indicating the environment is active.
+3. Your terminal prompt should now show ``(excavate-ht)`` instead of ``(base)``, indicating the environment is active.
 
 **The environment includes:**
 
