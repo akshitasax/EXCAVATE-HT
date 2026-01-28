@@ -418,7 +418,7 @@ def run_generate(args):
 
     # Extract all args from args
     
-    vcf_file = args.vcf_file.split(',')
+    vcf_file = args.vcf.split(',')
     var_type = args.var_type.split(',')
     
     #checking validity of locus arg, and saving start and end for downstream uses (mainly verifying if inputted fixed-points are within the locus)
@@ -437,7 +437,7 @@ def run_generate(args):
 
     # Make chr Seq object using chr fasta - this is not in a function, shoud it be? maybe
     
-    fa_file = args.fa_file
+    fa_file = args.chrom_fa
     if not os.path.exists(fa_file):
         raise FileNotFoundError(f"Chromosome fasta file '{fa_file}' does not exist.")
     else:
@@ -499,7 +499,7 @@ def run_generate(args):
         print("Preparing to run off-targets analysis...")
 
         genome_fa = args.genome_fa
-        chrom_fasta_path = args.fa_file
+        chrom_fasta_path = args.chrom_fa
         chrom_name = ot.chrom_name_from_fasta(chrom_fasta_path)
 
         if not os.path.exists(genome_fa):

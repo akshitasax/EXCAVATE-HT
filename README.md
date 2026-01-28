@@ -218,7 +218,7 @@ excavate-ht pair --help
 For parameter descriptions and usage examples, see the full documentation.
 
 
-# Off-target Analysis Setup
+## Off-Targets Analysis Setup
 
 EXCAVATE-HT performs off-target analysis using Bowtie to identify:
 
@@ -231,7 +231,7 @@ You have three options for providing genome reference data:
 2. Provide your own existing Bowtie indexes
 3. Provide a genome FASTA file and let EXCAVATE-HT build indexes automatically
 
-## Option A: Automatically download hg38 indexes (Recommended)
+### Option A: Automatically download hg38 indexes (Recommended)
 
 EXCAVATE-HT can download official prebuilt GRCh38 ("hg38 no-alt") Bowtie indexes for you.
 
@@ -245,7 +245,7 @@ Simply add the following flags to your command:
 
 ```bash
 excavate-ht generate \
-  --input variants.vcf \
+  --vcf variants.vcf \
   --off-targets \
   --download-hg38
 ```
@@ -259,7 +259,7 @@ excavate-ht generate \
 
 > **Note:** No genome FASTA is required for exact genome matching in this mode. This is the easiest way to get started.
 
-## Option B: Use your own Bowtie index
+### Option B: Use your own Bowtie index
 
 If you already have Bowtie indexes (either `.ebwt` or `.bt2` format), specify the path to the index prefix:
 
@@ -271,7 +271,7 @@ If you already have Bowtie indexes (either `.ebwt` or `.bt2` format), specify th
 
 ```bash
 excavate-ht generate \
-  --input variants.vcf \
+  --vcf variants.vcf \
   --off-targets \
   --genome-index-prefix /data/genomes/hg38/GRCh38_noalt_as
 ```
@@ -286,7 +286,7 @@ This prefix should correspond to index files such as:
 
 EXCAVATE-HT will automatically detect whether `.bt2` or `.ebwt` indexes are present.
 
-## Option C: Build indexes from a genome FASTA
+### Option C: Build indexes from a genome FASTA
 
 If no indexes are provided, EXCAVATE-HT will build Bowtie indexes automatically from your genome FASTA file:
 
@@ -300,18 +300,18 @@ Indexes are created in `<outdir>/bowtie_index/` and reused on subsequent runs.
 
 ```bash
 excavate-ht generate \
-  --input variants.vcf \
+  --vcf variants.vcf \
   --genome-fa genome.fa \
   --off-targets
 ```
 
-## Example Off-target Commands
+### Example Off-target Commands
 
 **Using automatic hg38 download:**
 
 ```bash
 excavate-ht generate \
-  --input variants.vcf \
+  --vcf variants.vcf \
   --genome-fa genome.fa \
   --off-targets \
   --download-hg38
@@ -321,7 +321,7 @@ excavate-ht generate \
 
 ```bash
 excavate-ht generate \
-  --input variants.vcf \
+  --vcf variants.vcf \
   --off-targets \
   --genome-index-prefix /data/hg38/GRCh38_noalt_as
 ```
@@ -330,7 +330,7 @@ excavate-ht generate \
 
 ```bash
 excavate-ht generate \
-  --input variants.vcf \
+  --vcf variants.vcf \
   --genome-fa /path/to/hg38.fa \
   --off-targets
 ```
