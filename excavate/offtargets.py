@@ -258,26 +258,30 @@ def ensure_bowtie1_version(min_version=(1, 2, 3)):
 HG38_BT2_URL = "https://genome-idx.s3.amazonaws.com/bt/GRCh38_noalt_as.zip"
 HG38_PREFIX_NAME = "GRCh38_noalt_as"
 
-def download_hg38_bt2(outdir: str | Path) -> str:
-    """
-    Download and extract Bowtie hg38 (GRCh38_noalt_as) indexes.
+import urllib.request
+import zipfile
+from pathlib import Path
 
-    Returns:
-        genome_index_prefix (str)
-    """
+HG38_BT2_URL = "https://genome-idx.s3.amazonaws.com/bt/GRCh38_noalt_as.zip"
+HG38_PREFIX_NAME = "GRCh38_noalt_as"
+
+def _bt2_forward_files(prefix: Path) -> list[Path]:
+    return [Path(f"{prefix}.{i}.bt2") for i in range(1, 5)]
+
+def download_hg38_bt2(outdir: str | Path) -> str:
     outdir = Path(outdir)
     index_dir = outdir / "bowtie_index"
     index_dir.mkdir(parents=True, exist_ok=True)
 
-    prefix = index_dir / HG38_PREFIX_NAME
+    # Preferred prefix location (no nested folder)
+    preferred_prefix = index_dir / HG38_PREFIX_NAME
 
-    # If indexes already exist, just return
-    bt2_files = [f"{prefix}.{i}.bt2" for i in range(1, 5)]
-    if all(Path(x).exists() for x in bt2_files):
-        print(f"hg38 Bowtie indexes already present at: {prefix}")
-        return str(prefix)
+    # If already present at preferred location, done
+    if all(p.exists() for p in _bt2_forward_files(preferred_prefix)):
+        print(f"hg38 Bowtie indexes already present at: {preferred_prefix}")
+        return str(preferred_prefix)
 
-    zip_path = index_dir / "GRCh38_noalt_as.zip"
+    zip_path = index_dir / f"{HG38_PREFIX_NAME}.zip"
 
     print("Downloading hg38 Bowtie indexes (~3–4 GB). This may take a few minutes...")
     urllib.request.urlretrieve(HG38_BT2_URL, zip_path)
@@ -289,12 +293,33 @@ def download_hg38_bt2(outdir: str | Path) -> str:
     # Clean up zip to save space
     zip_path.unlink(missing_ok=True)
 
-    if not all(Path(x).exists() for x in bt2_files):
-        raise RuntimeError("hg38 download completed but expected .bt2 files not found.")
+    # After extraction, indexes may be in a nested folder.
+    # Find the location of "<name>.1.bt2" and infer the prefix from that.
+    candidates = list(index_dir.rglob(f"{HG38_PREFIX_NAME}.1.bt2"))
+    if not candidates:
+        # Helpful debug listing
+        sample = list(index_dir.rglob("*.bt2"))[:20]
+        raise RuntimeError(
+            "hg38 download completed but expected .bt2 files not found.\n"
+            f"Searched under: {index_dir}\n"
+            f"Found bt2 files (sample): {[str(p) for p in sample]}"
+        )
 
-    print(f"hg38 Bowtie indexes ready at: {prefix}")
-    return str(prefix)
-    
+    # Pick the first match and compute its prefix path by stripping ".1.bt2"
+    one_bt2 = candidates[0]
+    detected_prefix = Path(str(one_bt2).replace(".1.bt2", ""))
+
+    # Validate that the full forward set exists for the detected prefix
+    if not all(p.exists() for p in _bt2_forward_files(detected_prefix)):
+        raise RuntimeError(
+            "Found an hg38 bt2 index file but not the full expected set of forward indexes.\n"
+            f"Detected prefix: {detected_prefix}\n"
+            f"Missing: {[str(p) for p in _bt2_forward_files(detected_prefix) if not p.exists()]}"
+        )
+
+    print(f"hg38 Bowtie indexes ready at: {detected_prefix}")
+    return str(detected_prefix)
+
 
 def bowtie_index_exists(prefix: str) -> bool:
     """

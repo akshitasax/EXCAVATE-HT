@@ -357,16 +357,16 @@ def run_off_targets(
 
     # Decide index prefixes (defaults into outdir so we can write/cache)
     if args.download_hg38_index:
-        args.genome_index_prefix = ot.download_hg38_bt2(outdir)
+        genome_index_prefix = ot.download_hg38_bt2(outdir)
     elif getattr(args, "genome_index_prefix", None) is None:
-        genome_bt1_index_prefix = str(outdir / "bowtie_index" / "genome_bt1")
+        genome_index_prefix = str(outdir / "bowtie_index" / "genome_bt1")
     else:
-        genome_bt1_index_prefix = str(args.genome_index_prefix)
+        genome_index_prefix = str(args.genome_index_prefix)
 
     if getattr(args, "chrom_index_prefix", None) is None:
-        chr_bt1_index_prefix = str(outdir / "bowtie_index" / f"{chrom_name}_bt1")
+        chr_index_prefix = str(outdir / "bowtie_index" / f"{chrom_name}_bt1")
     else:
-        chr_bt1_index_prefix = str(args.chrom_index_prefix)
+        chr_index_prefix = str(args.chrom_index_prefix)
 
     # tmp directory
     tmp_dir = outdir / "tmp_offtargets"
@@ -376,8 +376,8 @@ def run_off_targets(
         all_guides_final = ot.add_bowtie_offtargets(
             all_guides_unique,
             cas_obj,
-            genome_index_prefix=genome_bt1_index_prefix,
-            chr_index_prefix=chr_bt1_index_prefix,
+            genome_index_prefix=genome_index_prefix,
+            chr_index_prefix=chr_index_prefix,
             ensure_index=True,
             genome_fasta_for_autobuild=str(genome_fa),
             chr_fasta_for_autobuild=str(chrom_fasta_path),
