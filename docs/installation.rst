@@ -125,7 +125,7 @@ External tools:
 
 - bedtools
 - bcftools
-- bowtie1 for off-targets analysis
+- bowtie1 >=1.2.3 for off-targets analysis
 
 Install EXCAVATE-HT
 ...................
