@@ -498,12 +498,16 @@ def run_generate(args):
     if args.off_targets:
         print("Preparing to run off-targets analysis...")
 
-        genome_fa = args.genome_fa
         chrom_fasta_path = args.chrom_fa
         chrom_name = ot.chrom_name_from_fasta(chrom_fasta_path)
 
-        if not os.path.exists(genome_fa):
-            raise FileNotFoundError(f"Whole genome fasta file '{genome_fa}' does not exist.")
+        if args.genome_fa:
+            if not os.path.exists(genome_fa):
+                raise FileNotFoundError(f"Whole genome fasta file '{genome_fa}' does not exist.")
+            else:
+                genome_fa = args.genome_fa
+        else:
+            genome_fa = None
 
         all_guides_final = run_off_targets(
             args=args,
