@@ -5,7 +5,8 @@ Example run: Generating a paired dual-gRNA library
 ==================================================
 
 Generating paired dual-gRNAs targeting heterozygous SNVs in an individual cell-line in the MFN2 locus, for the SpCas9 enzyme, 
-paired via "random" method (all gRNA targeting different SNPs paired together) in the locus. 
+paired via "random" method (all gRNA targeting different SNPs paired together) in the locus. Off-targets enabled,
+--download-hg38-index will automatically download required hg38 indexes for off-targets analysis.
 
 .. code-block:: bash
 
@@ -18,6 +19,7 @@ paired via "random" method (all gRNA targeting different SNPs paired together) i
      --cas SpCas9 \
      --pairing-method r \
      --off-targets \
+     --download-hg38-index \
      --summary \
      -o paired_gRNA_output_folder
 
@@ -26,7 +28,8 @@ Example run: Generating a single-gRNA library, editing it, then pairing to creat
 =====================================================================================================
 
 Generaing single-gRNAs targeting heteroyzgous SNVs in an individual cell-line and common SNPs present
-in the 1000 genomes project, in the MFN2 locus, for a custom 5prime PAM sequence.
+in the 1000 genomes project, in the MFN2 locus, for a custom 5prime PAM sequence. Off-targets enabled, 
+genome and chromosome index files prefixes provided using --genome-index-prefix and --chrom-index-prefix flags
 
 .. code-block:: bash
 
@@ -38,6 +41,8 @@ in the 1000 genomes project, in the MFN2 locus, for a custom 5prime PAM sequence
      --pam-list TRTV \
      --orient 5prime \
      --off-targets \
+     --genome-index-prefix /path/to/hg38genome_index_prefix/genome_bt1 \
+     --chrom-index-prefix /path/to/chrom1_index_prefix/genome_bt1 \
      --summary \
      -o single_gRNA_output_folder
 
