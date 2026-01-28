@@ -9,6 +9,7 @@ from Bio.Seq import MutableSeq
 from Bio.Seq import Seq
 import multiprocessing as mp
 from pyfaidx import Fasta
+import os
 
 """
 Defining the Cas class. And defininh all functions to create Cas objects, and creating some set Cas objects 
@@ -656,23 +657,39 @@ def search_pattern(guide):
 
     return total + total_rc
 
-"""
-Counts exact matches in the genome for each guide in a guidesdf. Uses multi-processing for supposedly faster execution.
-Arguments:
-    df: dataframe of guides
-    genome_fasta_path: path to the genome fasta file
-    cas_parameters: Cas object
-    num_processes: number of processes to use
-Returns:
-    df: dataframe of guides with exact matches in the genome annotated
-"""
+def _default_processes():
+    """
+    Gets appropriate processing units
+    """
+    # 1) SGE allocation (works on Wynton)
+    nslots = os.environ.get("NSLOTS")
+    if nslots and nslots.isdigit():
+        return max(1, int(nslots))
+    # 2) CPU affinity (often respects scheduler cpuset on Linux)
+    try:
+        return max(1, len(os.sched_getaffinity(0)))
+    except Exception:
+        pass
+    # 3) Local fallback
+    return max(1, mp.cpu_count() - 1)
+
 def count_exact_matches(df, genome_fasta_path, cas_parameters, num_processes=None):
+    """
+    Counts exact matches in the genome for each guide in a guidesdf. Uses multi-processing for supposedly faster execution.
+    Arguments:
+        df: dataframe of guides
+        genome_fasta_path: path to the genome fasta file
+        cas_parameters: Cas object
+        num_processes: number of processes to use
+    Returns:
+        df: dataframe of guides with exact matches in the genome annotated
+    """
     guides = df['gRNA'].tolist()
-    num_processes = num_processes or max(1, mp.cpu_count() - 1)
+    num_processes = num_processes or _default_processes()
 
     # Start the multiprocessing pool
     with mp.Pool(
-        num_processes,
+        processes=num_processes,
         initializer=init_worker,
         initargs=(genome_fasta_path, cas_parameters)
     ) as pool:

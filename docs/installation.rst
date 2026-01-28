@@ -125,6 +125,7 @@ External tools:
 
 - bedtools
 - bcftools
+- bowtie1 for off-targets analysis
 
 Install EXCAVATE-HT
 ...................
@@ -186,7 +187,7 @@ Download both the compressed VCF file and its index:
 
 **4. Population VCF files**
 
-Download population variant data (e.g., from the 1000 Genomes Project): https://www.internationalgenome.org/data-portal/data-collection
+Download population variant data (e.g., from the 1000 Genomes Project: https://hgdownload.soe.ucsc.edu/gbdb/hg38/1000Genomes/)
 
 You'll need:
 
@@ -231,6 +232,148 @@ To see detailed help for each mode:
    excavate-ht pair --help
 
 For parameter descriptions and usage examples, see the full documentation.
+
+Off-target Analysis Setup
+-------------------------
+
+EXCAVATE-HT performs off-target analysis using Bowtie to identify:
+
+- Exact genome-wide matches
+- Optional 1-bp mismatches on a target chromosome
+
+You have three options for providing genome reference data:
+
+1. Use prebuilt hg38 Bowtie indexes (recommended)
+2. Provide your own existing Bowtie indexes
+3. Provide a genome FASTA file and let EXCAVATE-HT build indexes automatically
+
+Option A: Automatically download hg38 indexes (Recommended)
+...........................................................
+
+EXCAVATE-HT can download official prebuilt GRCh38 ("hg38 no-alt") Bowtie indexes for you.
+
+Simply add the following flags to your command:
+
+.. code-block:: bash
+
+   --off-targets --download-hg38
+
+**Example:**
+
+.. code-block:: bash
+
+   excavate-ht generate \
+     --input variants.vcf \
+     --off-targets \
+     --download-hg38
+
+**What this does:**
+
+- Downloads GRCh38_noalt_as Bowtie indexes (~3–4 GB)
+- Extracts them into: ``<outdir>/bowtie_index/``
+- Automatically uses them for alignment
+- Caches them for future runs
+
+.. note::
+   No genome FASTA is required for exact genome matching in this mode. This is the easiest way to get started.
+
+Option B: Use your own Bowtie index
+....................................
+
+If you already have Bowtie indexes (either ``.ebwt`` or ``.bt2`` format), specify the path to the index prefix:
+
+.. code-block:: bash
+
+   --genome-index-prefix /full/path/to/index_prefix
+
+**Example:**
+
+.. code-block:: bash
+
+   excavate-ht generate \
+     --input variants.vcf \
+     --off-targets \
+     --genome-index-prefix /data/genomes/hg38/GRCh38_noalt_as
+
+This prefix should correspond to index files such as:
+
+- ``GRCh38_noalt_as.1.bt2``
+- ``GRCh38_noalt_as.2.bt2``
+- ``GRCh38_noalt_as.3.bt2``
+- ``GRCh38_noalt_as.4.bt2``
+- (or ``.ebwt`` equivalents)
+
+EXCAVATE-HT will automatically detect whether ``.bt2`` or ``.ebwt`` indexes are present.
+
+Option C: Build indexes from a genome FASTA
+...........................................
+
+If no indexes are provided, EXCAVATE-HT will build Bowtie indexes automatically from your genome FASTA file:
+
+.. code-block:: bash
+
+   --genome-fa /path/to/genome.fa
+
+Indexes are created in ``<outdir>/bowtie_index/`` and reused on subsequent runs.
+
+**Example:**
+
+.. code-block:: bash
+
+   excavate-ht generate \
+     --input variants.vcf \
+     --genome-fa genome.fa \
+     --off-targets
+
+Example Off-target Commands
+...........................
+
+**Using automatic hg38 download:**
+
+.. code-block:: bash
+
+   excavate-ht generate \
+     --input variants.vcf \
+     --genome-fa genome.fa \
+     --off-targets \
+     --download-hg38
+
+**Using existing indexes:**
+
+.. code-block:: bash
+
+   excavate-ht generate \
+     --input variants.vcf \
+     --off-targets \
+     --genome-index-prefix /data/hg38/GRCh38_noalt_as
+
+**Building indexes from FASTA:**
+
+.. code-block:: bash
+
+   excavate-ht generate \
+     --input variants.vcf \
+     --genome-fa /path/to/hg38.fa \
+     --off-targets
+
+Notes and Requirements
+......................
+
+**Requirements:**
+
+- Bowtie ≥ 1.2.3 is required (automatically checked at runtime)
+- Both Bowtie1 (``.ebwt``) and Bowtie2-format (``.bt2``) indexes are supported
+
+**Behavior:**
+
+- By default, Bowtie searches both strands; EXCAVATE-HT writes forward queries only to avoid double-counting
+- Indexes are cached under ``<outdir>/bowtie_index/`` for fast repeat runs
+- For HPC environments, use ``--bowtie-threads`` to control parallelism
+
+**Storage considerations:**
+
+- Downloaded hg38 indexes require ~3–4 GB of disk space
+- Building indexes from FASTA may take 30–60 minutes depending on genome size and system resources
 
 Troubleshooting
 ---------------

@@ -5,6 +5,7 @@ This script runs EXCAVATE, a pipeline that generates guide RNA libraries for a g
 """
 
 from . import ap
+from . import offtargets as ot
 import pandas as pd
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -12,6 +13,7 @@ from Bio.Seq import MutableSeq
 import re
 import argparse
 import os
+from pathlib import Path
 import sys
 
 excavate_banner = r"""
@@ -72,15 +74,13 @@ def add_generate_parser(subparsers):
         help="Generate complete gRNA library using inputted variant data"
     )
 
-    gen_parser.add_argument("vcf_file", type=str, help="path to the vcf file, comma-separated if more than one (cell_line.vcf.gz,1000genomes.vcf.gz). If using a phased cell-line vcf, put that first.")
+    gen_parser.add_argument("--vcf", type=str, required=True, help="path to the vcf file, comma-separated if more than one (cell_line.vcf.gz,1000genomes.vcf.gz). If using a phased cell-line vcf, put that first.")
     
-    gen_parser.add_argument("var_type", type=str, help="'cell-line' or 'population', with a number and comma-separated if more than one (eg: cell-line,population1,population2)")
-    
-    gen_parser.add_argument("fa_file", type=str, help="path to the chromosome fasta file for your locus of interest (eg: ch1sequence.fasta)")
-    
-    gen_parser.add_argument("genome_fa", type=str, help="path to the whole genome fasta file for your organism")
-    
-    gen_parser.add_argument("locus", type=str, help="chr#:start-end")
+    gen_parser.add_argument("--var_type", type=str, required=True, help="'cell-line' or 'population', with a number and comma-separated if more than one (eg: cell-line,population1,population2)")
+        
+    gen_parser.add_argument("--chrom_fa", type=str, required=True, help="path to the chromosome fasta file for your locus of interest (eg: ch1sequence.fasta)")
+                
+    gen_parser.add_argument("--locus", type=str, required=True, help="chr#:start-end")
     
     gen_parser.add_argument(
         "--af-threshold", 
@@ -132,10 +132,46 @@ def add_generate_parser(subparsers):
                         
     gen_parser.add_argument(
         "--off-targets",
-        action='store_true',
-        help="Include for off-targets analysis (counting exact matches in genome, and 1 bp mismatches in chromosome of interest).",
+        action="store_true",
+        help="Run off-target analysis: exact matches across genome and 1-bp mismatches in chromosome. Uses Bowtie1.",
     )
-                        
+
+    gen_parser.add_argument(
+        "--download-hg38-index",
+        action="store_true",
+        help="Download prebuilt hg38 Bowtie indexes (GRCh38_noalt_as) into outdir/bowtie_index and use them.",
+    )
+
+    gen_parser.add_argument(
+        "--genome-index-prefix",
+        type=str,
+        default=None,
+        help="Bowtie1 index prefix for the genome FASTA (e.g., /path/to/index/hg38_bt1). "
+            "If missing or index files are not found, EXCAVATE-HT will build it next to this prefix.",
+    )
+
+    gen_parser.add_argument(
+        "--genome_fa", 
+        type=str, 
+        required=False, 
+        help="path to the whole genome fasta file for your organism"
+    )
+
+    gen_parser.add_argument(
+        "--chrom-index-prefix",
+        type=str,
+        default=None,
+        help="Bowtie1 index prefix for the chromosome FASTA (e.g., /path/to/index/chr1_bt1). "
+            "If missing or index files are not found, EXCAVATE-HT will build it next to this prefix.",
+    )
+
+    gen_parser.add_argument(
+        "--bowtie-threads",
+        type=int,
+        default=None,
+        help="Number of threads for Bowtie1. Defaults to NSLOTS if set (HPC), otherwise 4.",
+    )
+            
     gen_parser.add_argument(
         "--split-phased",
         action='store_true',
@@ -250,37 +286,114 @@ def load_variant_data(vcf_file, var_type, locus, af_threshold):
 
     return gens_dict
 
-def run_off_targets(all_guides_unique, genome_fa, cas_obj, chseq):
+def run_off_targets(
+    args,
+    all_guides_unique,
+    genome_fa,
+    cas_obj,
+    outdir,
+    chrom_name,
+    chrom_fasta_path,
+):
+    """
+    Run Bowtie1-based off-target analysis.
 
-    def prompt_continue():
-        while True:
-            response = input("This step may take several hours. Do you want to continue? [y/n]: ").strip().lower()
-            if response in ('y', 'yes'):
-                return True
-            elif response in ('n', 'no'):
-                return False
-            else:
-                print("Please respond with 'y' or 'n'.")        
-                
-    # Prompt user
-    if prompt_continue():
-        
-        print('Off-targets analysis has begun, but may take hours to finish. To allow it to run without terminating, prevent your computer from sleeping. For Mac, go to Display > Advanced > Prevent automatic sleeping... Additionally, please make sure your computer does not shut down or run out of power')
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Must include: off_targets, genome_index_prefix, chrom_index_prefix, bowtie_threads
+        Optional: no_index_build (if you add it)
+    all_guides_unique : pd.DataFrame (or your guide table type)
+    genome_fa : str | Path
+        Path to genome FASTA (used for index auto-build if enabled)
+    cas_obj : object
+        Your CasParameters/whatever ot.add_bowtie_offtargets expects
+    outdir : str | Path
+        Output directory for caching indexes/tmp files
+    chrom_name : str
+        e.g. "chr1"
+    chrom_fasta_path : str | Path
+        Path to chromosome FASTA (used for index auto-build if enabled)
+    """
 
-        try:
-            all_guides_exact_counts = ap.count_exact_matches(all_guides_unique, genome_fasta_path=genome_fa, cas_parameters=cas_obj)
-            all_gudies_exact_1bp_counts = ap.one_mismatch(all_guides_exact_counts, chseq)
-            all_guides_final = all_gudies_exact_1bp_counts
-            print('Off-target analysis completed!')
-        except Exception as e:
-            raise RuntimeError(f"Failed to peform off-targets analysis: {e}")
-        
+    # def prompt_continue() -> bool:
+    #     while True:
+    #         response = input(
+    #             "This step may take several minutes to a few hours. Do you want to continue? [y/n]: "
+    #         ).strip().lower()
+    #         if response in ("y", "yes"):
+    #             return True
+    #         if response in ("n", "no"):
+    #             return False
+    #         print("Please respond with 'y' or 'n'.")
+
+    def _default_threads(user_threads: int | None) -> int:
+        if user_threads is not None:
+            return max(1, int(user_threads))
+        nslots = os.environ.get("NSLOTS")
+        if nslots and nslots.isdigit():
+            return max(1, int(nslots))
+        return 4
+
+    # If user didn't request off-targets, do nothing
+    if not getattr(args, "off_targets", False):
+        return all_guides_unique
+
+    # # Ask before running (your original behavior)
+    # if not prompt_continue():
+    #     print("Okay! Exiting out of off-target analysis...")
+    #     return all_guides_unique
+
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    print(
+        "Beginning off-targets analysis. This may take time depending on genome/index availability.\n"
+        "Tip: on HPC, submit as a job; on laptop, prevent sleep / power loss."
+    )
+
+    # Threads
+    threads = _default_threads(getattr(args, "bowtie_threads", None))
+
+    # Decide index prefixes (defaults into outdir so we can write/cache)
+    if args.download_hg38_index:
+        args.genome_index_prefix = ot.download_hg38_bt2(outdir)
+    elif getattr(args, "genome_index_prefix", None) is None:
+        genome_bt1_index_prefix = str(outdir / "bowtie_index" / "genome_bt1")
     else:
-        all_guides_final = all_guides_unique
-        print('Okay! Exiting out of off-target analysis...')
-        
-    return all_guides_final
-        
+        genome_bt1_index_prefix = str(args.genome_index_prefix)
+
+    if getattr(args, "chrom_index_prefix", None) is None:
+        chr_bt1_index_prefix = str(outdir / "bowtie_index" / f"{chrom_name}_bt1")
+    else:
+        chr_bt1_index_prefix = str(args.chrom_index_prefix)
+
+    # tmp directory
+    tmp_dir = outdir / "tmp_offtargets"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        all_guides_final = ot.add_bowtie_offtargets(
+            all_guides_unique,
+            cas_obj,
+            genome_index_prefix=genome_bt1_index_prefix,
+            chr_index_prefix=chr_bt1_index_prefix,
+            ensure_index=True,
+            genome_fasta_for_autobuild=str(genome_fa),
+            chr_fasta_for_autobuild=str(chrom_fasta_path),
+            threads_genome=threads,
+            threads_chr=threads,
+            tmp_dir=str(tmp_dir),
+            exact_col="exact_matches_in_genome",
+            mm1_col=f"1bp_mismatch_matches_in_{chrom_name}",
+        )
+        print("Off-target analysis completed!")
+        return all_guides_final
+
+    except Exception as e:
+        raise RuntimeError(f"Failed to perform off-targets analysis: {e}") from e
+
+ 
 def apply_pairing(all_guides, method, fixed_points=None):
     if method == 'r':
         return ap.random_pair(all_guides)
@@ -383,16 +496,27 @@ def run_generate(args):
     # Off-target analysis, if enabled
     
     if args.off_targets:
-        print('Preparing to run off-targets analysis...')
+        print("Preparing to run off-targets analysis...")
+
         genome_fa = args.genome_fa
+        chrom_fasta_path = args.fa_file
+        chrom_name = ot.chrom_name_from_fasta(chrom_fasta_path)
+
         if not os.path.exists(genome_fa):
             raise FileNotFoundError(f"Whole genome fasta file '{genome_fa}' does not exist.")
-        else:
-            all_guides_final = run_off_targets(all_guides_unique, genome_fa, cas_obj, chseq)
-        # run_off_targets() which returns all_guides_final
+
+        all_guides_final = run_off_targets(
+            args=args,
+            all_guides_unique=all_guides_unique,
+            genome_fa=genome_fa,
+            cas_obj=cas_obj,
+            outdir=outdir,
+            chrom_name=chrom_name,
+            chrom_fasta_path=chrom_fasta_path,
+        )
+
     else:
         all_guides_final = all_guides_unique
-
     # Save final all_guides_unique df with or without off-targets analysis in outdir
     
     # make sure outdir exists (although we already did this above, can maybe remove)
