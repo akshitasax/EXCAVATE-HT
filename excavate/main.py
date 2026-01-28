@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This script runs EXCAVATE, a pipeline that generates guide RNA libraries for a given locus, with optional pairing, and off-target detection.
+This script runs EXCAVATE-HT, a pipeline that generates guide RNA libraries for a given locus, with optional pairing, and off-target detection.
 """
 
 from . import ap
@@ -632,7 +632,7 @@ def run_generate(args):
             print('Summary table saved')
 
 
-    print('EXCAVATE has finished running! Enjoy your gRNA libraries! :)')
+    print('EXCAVATE-HT has finished running! Enjoy your gRNA libraries! :)')
     
     return
 
@@ -687,7 +687,7 @@ def main():
     
     """Main entry point for the gRNA pipeline"""
     parser = argparse.ArgumentParser(
-        description="ExCAVaTE: a pipeline to identify targetable genomic variants and generate allele-specific single and paired-gRNA libraries",
+        description="EXCAVATE-HT: a pipeline to identify targetable genomic variants and generate allele-specific single and paired-gRNA libraries",
         prog="excavate"
     )
     
@@ -703,7 +703,7 @@ def main():
         dest="command",
         title="subcommands",
         description="Available pipeline commands",
-        help="Use 'excavate <command> --help' for command-specific help"
+        help="Use 'excavate-ht <command> --help' for command-specific help"
     )
     
     # Add subcommand parsers
