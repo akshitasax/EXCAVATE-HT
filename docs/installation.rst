@@ -163,11 +163,7 @@ Download required files
 
 You will need the following files for your analysis:
 
-**1. Reference genome FASTA file**
-
-Download the human reference genome (hg38): https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/
-
-**2. Chromosome-specific FASTA file**
+**1. Chromosome-specific FASTA file**
 
 To download an individual chromosome:
 
@@ -178,14 +174,14 @@ To download an individual chromosome:
 5. Click "Send to:" at the top right > Complete record > File > ensure format is FASTA > Create file
 6. Rename the downloaded file to something descriptive (e.g., ``chr1_sequence.fasta``)
 
-**3. Cell line VCF files**
+**2. Cell line VCF files**
 
 Download both the compressed VCF file and its index:
 
 - ``cell-line.vcf.gz``
 - ``cell-line.vcf.gz.tbi``
 
-**4. Population VCF files**
+**3. Population VCF files**
 
 Download population variant data (e.g., from the 1000 Genomes Project: https://hgdownload.soe.ucsc.edu/gbdb/hg38/1000Genomes/)
 
@@ -208,7 +204,6 @@ After setup, your directory structure should look like this:
    │   ├── environment.yml
    │   ├── (other repository files)
    ├── input_data/
-   │   ├── whole_genome.fa
    │   ├── chr1_sequence.fasta
    │   ├── cell-line.vcf.gz
    │   ├── cell-line.vcf.gz.tbi
