@@ -267,10 +267,36 @@ Simply add the following flags to your command:
 - Downloads GRCh38_noalt_as Bowtie indexes (~3–4 GB)
 - Extracts them into: ``<outdir>/bowtie_index/``
 - Automatically uses them for alignment
-- Caches them for future runs
+- Caches them under <outdir>/bowtie_index for future runs using the same output directory.
 
 .. note::
    No genome FASTA is required for exact genome matching in this mode. This is the easiest way to get started.
+
+**Reusing downloaded genome indexes across projects**
+
+By default, EXCAVATE-HT downloads and caches genome indexes under::
+
+   <outdir>/bowtie_index/
+
+These indexes are reused automatically for subsequent runs as long as the same output directory is used.
+
+If you would like to reuse the same genome indexes across multiple projects or output directories, you may move the downloaded index files to a central location (for example, a shared data or genomes folder), and then point EXCAVATE-HT to that location using ``--genome-index-prefix``.
+
+For example:
+
+.. code-block:: bash
+
+   mv <outdir>/bowtie_index/GRCh38_noalt_as* /data/genomes/hg38/
+
+Then in future runs:
+
+.. code-block:: bash
+
+   --genome-index-prefix /data/genomes/hg38/GRCh38_noalt_as
+
+This avoids repeated downloads and allows a single set of indexes to be reused across analyses.
+
+EXCAVATE-HT will automatically detect existing ``.bt2`` or ``.ebwt`` index files at the specified prefix and will skip rebuilding or downloading when they are present.
 
 Option B: Use your own Bowtie index
 ....................................

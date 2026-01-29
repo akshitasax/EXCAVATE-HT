@@ -1,5 +1,5 @@
-Usage
-=====
+Parameters
+==========
 
 The command-line interface is installed as ``excavate-ht``.
 Run the following in Terminal to print descriptions of parameters (also described below).

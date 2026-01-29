@@ -11,11 +11,10 @@ paired via "random" method (all gRNA targeting different SNPs paired together) i
 .. code-block:: bash
 
    excavate-ht generate \
-     cellline.vcf.gz \
-     cell-line \
-     chrom1.fasta \
-     hg38.fasta \
-     chr1:11975541-12019490 \
+     --vcf cellline.vcf.gz \
+     --var_type cell-line \
+     --chrom_fa chrom1.fasta \
+     --locus chr1:11975541-12019490 \
      --cas SpCas9 \
      --pairing-method r \
      --off-targets \
@@ -29,15 +28,15 @@ Example run: Generating a single-gRNA library, editing it, then pairing to creat
 
 Generaing single-gRNAs targeting heteroyzgous SNVs in an individual cell-line and common SNPs present
 in the 1000 genomes project, in the MFN2 locus, for a custom 5prime PAM sequence. Off-targets enabled, 
-genome and chromosome index files prefixes provided using --genome-index-prefix and --chrom-index-prefix flags
+pre-built genome and chromosome index file prefixes provided using --genome-index-prefix and --chrom-index-prefix flags
 
 .. code-block:: bash
 
    excavate-ht generate \
-     cellline.vcf.gz,1000genomes_chrom1.vcf.gz cell-line,population \
-     chrom1.fasta \
-     hg38.fasta \
-     chr1:11975541-12019490 \
+     --vcf cellline.vcf.gz,1000genomes_chrom1.vcf.gz \
+     --var_type cell-line,population \
+     --chrom_fa chrom1.fasta \
+     --locus chr1:11975541-12019490 \
      --pam-list TRTV \
      --orient 5prime \
      --off-targets \
