@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}   # ensures conda activate works in every step
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: excavate-ht
+          environment-file: environment.yml
+          use-mamba: true
+          auto-activate-base: false
+
+      - name: Install package in editable mode
+        run: pip install -e .
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run core-function unit tests
+        run: pytest tests/test_core_functions.py -v
+
+      - name: Run bowtie toy test
+        run: pytest tests/test_bowtie_toy.py -v
