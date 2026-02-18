@@ -744,18 +744,36 @@ def one_mismatch(df, chseq):
 # SUMMARY STATS OF THE SINGLE-GUIDE LIBRARY
 
 """
-Returns a list of variants that are targetable by your Cas enzyme (have PAM sites within 10 bp of the SNP), as well as the number of guides found for each SNP
+Returns a list of variants that are targetable by your Cas enzyme (have PAM sites within 10 bp of the SNP), as well as the number of guides found for each SNP.
+Also includes variants/SNPs that were attempted (e.g., from snplist) but where no guide was found, reporting 0 guides for these.
 Arguments:
     guidesdf: dataframe of guides
+    snplist: list or dataframe of all SNPs attempted (each item should at least include 'rsID', 'SNP position', 'alt allele frequency' or a superset)
 Returns:
-    targetable_snps: dataframe of targetable SNPs
+    targetable_snps: dataframe of all attempted SNPs, reporting number of guides found for each
 """
-def targetable_vars(guidesdf):
-    targetable_snps = guidesdf.loc[:, ['rsID', 'SNP position', 'alt allele frequency']]
-    targetable_snps['no. of guides found (with ref or alt allele)'] = targetable_snps.groupby('SNP position')['SNP position'].transform('count')
-    targetable_snps = targetable_snps.drop_duplicates(subset='SNP position', keep='first')
-    targetable_snps = targetable_snps.reset_index() #makes new index column
-    targetable_snps = targetable_snps.drop(['index'], axis=1)
+def targetable_vars(guidesdf, snplist):
+    # Make sure snplist is a dataframe; if not, convert it (assume it's a list of dicts or tuples)
+    if not isinstance(snplist, pd.DataFrame):
+        snplist = pd.DataFrame(snplist)
+    
+    # Select necessary columns and drop duplicate positions from snplist
+    snps = snplist.loc[:, ['rsID', 'SNP position', 'alt allele frequency']].drop_duplicates(subset='SNP position')
+
+    # Count number of guides for each SNP position in guidesdf
+    guide_counts = guidesdf.groupby('SNP position').size().reset_index(name='no. of guides found (with ref or alt allele)')
+
+    # Merge counts onto snps: all snps, fill 0 where no guide
+    targetable_snps = pd.merge(
+        snps,
+        guide_counts,
+        on='SNP position',
+        how='left'
+    )
+    targetable_snps['no. of guides found (with ref or alt allele)'] = targetable_snps['no. of guides found (with ref or alt allele)'].fillna(0).astype(int)
+
+    # Reorder columns for output
+    targetable_snps = targetable_snps.reset_index(drop=True)
 
     return targetable_snps
 

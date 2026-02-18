@@ -527,12 +527,12 @@ def run_generate(args):
     os.makedirs(outdir, exist_ok=True)
 
     # save all_guides df in output directory as a csv file, and bed file for viewing in a genome browser
-    all_guides_final_output = os.path.join(outdir, "all_guides.csv")
+    all_guides_final_output = os.path.join(outdir, f"{locus}_gRNA.csv")
     all_guides_final.to_csv(all_guides_final_output, index=False)
 
     all_guides_final_bed = ap.output_bed_format(all_guides_final)
-    all_guides_final_bed_output = os.path.join(outdir, "all_guides_viewing.bed")
-    all_guides_final_bed.to_csv(all_guides_final_bed_output, index=False)
+    all_guides_final_bed_output = os.path.join(outdir, f"{locus}_gRNA_viewing.bed")
+    all_guides_final_bed.to_csv(all_guides_final_bed_output, sep='\t', header=False, index=False)
 
     print(f'Combined and annotated single-gRNA library saved in {outdir}')
 
@@ -569,20 +569,20 @@ def run_generate(args):
             all_guides_allele2 = split_list[1]
             
             #save allele 1 csv and bed files
-            all_guides_allele1_output = os.path.join(outdir, "all_guides_allele1.csv")
+            all_guides_allele1_output = os.path.join(outdir, f"{locus}_gRNA_allele1.csv")
             all_guides_allele1.to_csv(all_guides_allele1_output, index=False)
             
             all_guides_allele1_bed = ap.output_bed_format(all_guides_allele1)
-            all_guides_allele1_bed_output = os.path.join(outdir, "all_guides_allele1_viewing.bed")
-            all_guides_allele1_bed.to_csv(all_guides_allele1_bed_output, index=False)
+            all_guides_allele1_bed_output = os.path.join(outdir, f"{locus}_gRNA_allele1_viewing.bed")
+            all_guides_allele1_bed.to_csv(all_guides_allele1_bed_output, sep='\t', header=False, index=False)
 
             #save allele 2 csv and bed files
-            all_guides_allele2_output = os.path.join(outdir, "all_guides_allele2.csv")
+            all_guides_allele2_output = os.path.join(outdir, f"{locus}_gRNA_allele2.csv")
             all_guides_allele2.to_csv(all_guides_allele2_output, index=False)
 
             all_guides_allele2_bed = ap.output_bed_format(all_guides_allele2)
-            all_guides_allele2_bed_output = os.path.join(outdir, "all_guides_allele2_viewing.bed")
-            all_guides_allele2_bed.to_csv(all_guides_allele2_bed_output, index=False)
+            all_guides_allele2_bed_output = os.path.join(outdir, f"{locus}_gRNA_allele2_viewing.bed")
+            all_guides_allele2_bed.to_csv(all_guides_allele2_bed_output, sep='\t', header=False, index=False)
 
             print(f'Single-gRNA library split by phasing, saved in {outdir}')
             
@@ -594,8 +594,8 @@ def run_generate(args):
             all_guides_allele1_paired = apply_pairing(all_guides_allele1, args.pairing_method, fixed_points_list)
             all_guides_allele2_paired = apply_pairing(all_guides_allele2, args.pairing_method, fixed_points_list)
 
-            all_guides_allele1_paired_output = os.path.join(outdir, "all_guides_allele1_paired.csv")
-            all_guides_allele2_paired_output = os.path.join(outdir, "all_guides_allele2_paired.csv")
+            all_guides_allele1_paired_output = os.path.join(outdir, f"{locus}_gRNA_allele1_paired.csv")
+            all_guides_allele2_paired_output = os.path.join(outdir, f"{locus}_gRNA_allele2_paired.csv")
 
             all_guides_allele1_paired.to_csv(all_guides_allele1_paired_output, index=False)
             all_guides_allele2_paired.to_csv(all_guides_allele2_paired_output, index=False)
@@ -607,7 +607,7 @@ def run_generate(args):
         if args.pairing_method:
             all_guides_paired = apply_pairing(all_guides_final, args.pairing_method, fixed_points_list)
             
-            all_guides_paired_output = os.path.join(outdir, "all_guides_paired.csv")
+            all_guides_paired_output = os.path.join(outdir, f"{locus}_gRNA_paired.csv")
             all_guides_paired.to_csv(all_guides_paired_output, index=False)
 
             print(f'Paired dual-guide library saved in {outdir}')
@@ -619,8 +619,8 @@ def run_generate(args):
             all_guides_allele1_summary = ap.targetable_vars(all_guides_allele1)
             all_guides_allele2_summary = ap.targetable_vars(all_guides_allele2)
 
-            all_guides_allele1_summary_output = os.path.join(outdir, "all_guides_allele1_summary.csv")
-            all_guides_allele2_summary_output = os.path.join(outdir, "all_guides_allele2_summary.csv")
+            all_guides_allele1_summary_output = os.path.join(outdir, f"{locus}_gRNA_allele1_summary.csv")
+            all_guides_allele2_summary_output = os.path.join(outdir, f"{locus}_gRNA_allele2_summary.csv")
 
             all_guides_allele1_summary.to_csv(all_guides_allele1_summary_output, index=False)
             all_guides_allele2_summary.to_csv(all_guides_allele2_summary_output, index=False)
@@ -630,7 +630,7 @@ def run_generate(args):
         else:
             all_guides_summary = ap.targetable_vars(all_guides_final)
             
-            all_guides_summary_output = os.path.join(outdir, "all_guides_summary.csv")
+            all_guides_summary_output = os.path.join(outdir, f"{locus}_gRNA_summary.csv")
             all_guides_summary.to_csv(all_guides_summary_output, index=False)
             
             print('Summary table saved')
@@ -644,6 +644,8 @@ def run_pairing(args):
 
     print(excavate_banner)
     
+    locus = args.locus
+
     # get output directory
     outdir = args.output_dir
     
@@ -675,10 +677,10 @@ def run_pairing(args):
     # if pairing enabled, pair each allele's guides according to specified method    
     all_guides_paired = apply_pairing(all_guides, args.pairing_method, fixed_points_list)
     if all_guides_paired.empty:
-        raise ValueError("No pairs made. Check if fixed-points fall within library's genomic region")
+        raise ValueError("No pairs made. Check if fixed-points fall within the given genomic locus")
 
     os.makedirs(outdir, exist_ok=True)
-    all_guides_paired_output = os.path.join(outdir, "all_guides_paired.csv")
+    all_guides_paired_output = os.path.join(outdir, f"{locus}_gRNA_paired.csv")
     
     all_guides_paired.to_csv(all_guides_paired_output, index=False)
 
