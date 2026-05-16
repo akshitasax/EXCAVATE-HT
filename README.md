@@ -118,6 +118,7 @@ Python dependencies:
 External tools:
 - bedtools
 - bcftools
+- bowtie >= 1.2.3
 
 ### Install EXCAVATE-HT
 
@@ -218,7 +219,7 @@ For parameter descriptions and usage examples, see the full documentation.
 EXCAVATE-HT performs off-target analysis using Bowtie to identify:
 
 - Exact genome-wide matches
-- Optional 1-bp mismatches on a target chromosome
+- 1-bp mismatches on a target chromosome
 
 You have three options for providing genome reference data:
 
@@ -226,7 +227,7 @@ You have three options for providing genome reference data:
 2. Provide your own existing Bowtie indexes
 3. Provide a genome FASTA file and let EXCAVATE-HT build indexes automatically
 
-### Option A: Automatically download hg38 indexes (Recommended)
+### Option 1: Automatically download hg38 indexes (Recommended)
 
 EXCAVATE-HT can download official prebuilt GRCh38 ("hg38 no-alt") Bowtie indexes for you.
 
@@ -276,7 +277,7 @@ This avoids repeated downloads and allows a single set of indexes to be reused a
 
 EXCAVATE-HT will automatically detect existing `.bt2` or `.ebwt` index files at the specified prefix and will skip rebuilding or downloading when they are present.
 
-### Option B: Use your own Bowtie index
+### Option 2: Use your own Bowtie index
 
 If you already have Bowtie indexes (either `.ebwt` or `.bt2` format), specify the path to the index prefix:
 
@@ -303,7 +304,7 @@ This prefix should correspond to index files such as:
 
 EXCAVATE-HT will automatically detect whether `.bt2` or `.ebwt` indexes are present.
 
-### Option C: Build indexes from a genome FASTA
+### Option 3: Build indexes from a genome FASTA
 
 If no indexes are provided, EXCAVATE-HT will build Bowtie indexes automatically from your genome FASTA file:
 
@@ -329,7 +330,6 @@ excavate-ht generate \
 ```bash
 excavate-ht generate \
   --vcf variants.vcf \
-  --genome-fa genome.fa \
   --off-targets \
   --download-hg38
 ```

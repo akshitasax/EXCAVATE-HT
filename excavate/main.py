@@ -316,17 +316,6 @@ def run_off_targets(
         Path to chromosome FASTA (used for index auto-build if enabled)
     """
 
-    # def prompt_continue() -> bool:
-    #     while True:
-    #         response = input(
-    #             "This step may take several minutes to a few hours. Do you want to continue? [y/n]: "
-    #         ).strip().lower()
-    #         if response in ("y", "yes"):
-    #             return True
-    #         if response in ("n", "no"):
-    #             return False
-    #         print("Please respond with 'y' or 'n'.")
-
     def _default_threads(user_threads: int | None) -> int:
         if user_threads is not None:
             return max(1, int(user_threads))
@@ -339,16 +328,11 @@ def run_off_targets(
     if not getattr(args, "off_targets", False):
         return all_guides_unique
 
-    # # Ask before running (your original behavior)
-    # if not prompt_continue():
-    #     print("Okay! Exiting out of off-target analysis...")
-    #     return all_guides_unique
-
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
     print(
-        "Beginning off-targets analysis. This may take time depending on genome/index availability.\n"
+        "Beginning off-target analysis. This may take time depending on genome/index availability.\n"
         "Tip: on HPC, submit as a job; on laptop, prevent sleep / power loss."
     )
 
@@ -400,7 +384,7 @@ def apply_pairing(all_guides, method, fixed_points=None):
     elif method == 'fp':
         return ap.fixed_point_pair(all_guides, fixed_points)
     elif method == 't':
-        return ap.tiled_pair(all_guides)
+        return ap.tiling_pair(all_guides)
     else:
         raise ValueError(f"Unsupported pairing method: {method}")
 
@@ -644,7 +628,7 @@ def run_pairing(args):
 
     print(excavate_banner)
     
-    locus = args.locus
+    from pathlib import Path
 
     # get output directory
     outdir = args.output_dir
@@ -654,8 +638,11 @@ def run_pairing(args):
 
     if not os.path.exists(input_library_path):
         raise FileNotFoundError(f"input library file '{input_library_path}' does not exist.")
+    
+    input_library_path_obj = Path(input_library_path)
+    input_library_name = input_library_path_obj.stem # Get filename without extension
 
-    all_guides = pd.read_csv(input_library_path)
+    all_guides = pd.read_csv(input_library_path_obj)
     all_guides = all_guides.sort_values(by=["SNP position","start"]).reset_index(drop=True)
 
     #check if fp
@@ -667,7 +654,7 @@ def run_pairing(args):
         else:
             fixed_points_list = fixed_points_list.split(',')
 
-    # second, check if points are valid (int, and fall between locus start and end)
+        # second, check if points are valid int
         for point in fixed_points_list:
             try:
                 point_int = int(point)
@@ -680,7 +667,7 @@ def run_pairing(args):
         raise ValueError("No pairs made. Check if fixed-points fall within the given genomic locus")
 
     os.makedirs(outdir, exist_ok=True)
-    all_guides_paired_output = os.path.join(outdir, f"{locus}_gRNA_paired.csv")
+    all_guides_paired_output = os.path.join(outdir, f"{input_library_name}_paired.csv")
     
     all_guides_paired.to_csv(all_guides_paired_output, index=False)
 
