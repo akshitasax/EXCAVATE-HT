@@ -2,7 +2,9 @@
 
 EXtracting Common Allelic VAriants for Targeted Editing in High-Throughput
 
-A python-based tool to mine population and personalised variant data to generate libraries of genomic loci commonly targetable for allele-specific editing.
+A python-based tool to mine population and personalised variant data to generate libraries of genomic loci commonly targetable for allele-specific editing. 
+
+Find the pre-print here: [EXCAVATE-HT: A Bioinformatic Pipeline to Identify Targetable Genomic Variants for Allele-Specific Editing](https://www.biorxiv.org/content/10.64898/2026.07.23.739930v1)
 
 Find detailed documentation here: https://excavate-ht.readthedocs.io/en/latest/
 
